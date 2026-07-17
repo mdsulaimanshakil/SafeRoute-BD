@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="SafeRoute BD — Smart Community Safety & Incident Management System for Bangladesh." />
+  <title>SafeRoute BD — Report. Track. Stay Safe.</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .landing-card {
+      max-width: 520px;
+      text-align: center;
+    }
+    .landing-brand-name {
+      font-size: 2.25rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--white) 40%, var(--teal) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -1px;
+      margin-bottom: 0.5rem;
+    }
+    .landing-tagline {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+    .landing-tagline strong { color: var(--teal); }
+    .btn-group {
+      display: flex;
+      gap: 0.85rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-secondary {
+      flex: 1;
+      min-width: 140px;
+      padding: 0.85rem 1.5rem;
+      background: transparent;
+      border: 1.5px solid var(--navy-border);
+      border-radius: var(--radius-btn);
+      color: var(--text-secondary);
+      font-size: 0.97rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+    }
+    .btn-secondary:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+      background: var(--teal-subtle);
+    }
+    .btn-primary-landing {
+      flex: 1;
+      min-width: 140px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .feature-pills {
+      display: flex;
+      gap: 0.6rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+    .pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0.4rem 0.9rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--navy-border);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .pill span { color: var(--teal); }
+    .bd-flag {
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-animated" aria-hidden="true"></div>
+
+  <main class="page-wrapper">
+    <div class="auth-card landing-card">
+
+      <!-- Brand -->
+      <div class="brand" style="margin-bottom:1.5rem;">
+        <div class="brand-logo" aria-hidden="true" style="width:76px;height:76px;border-radius:22px;">
+          <svg viewBox="0 0 24 24" style="width:42px;height:42px;">
+            <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"/>
+            <path fill="rgba(255,255,255,0.3)" d="M12 5.5L6.5 8v4.2c0 3.85 2.55 7.45 5.5 8.35 2.95-.9 5.5-4.5 5.5-8.35V8L12 5.5z"/>
+          </svg>
+        </div>
+      </div>
+
+      <h1 class="landing-brand-name">SafeRoute BD</h1>
+      <p class="landing-tagline">
+        <strong>Report. Track. Stay Safe.</strong><br/>
+        Bangladesh's Smart Community Safety &amp; Incident Management Platform.
+        <span class="bd-flag">🇧🇩</span>
+      </p>
+
+      <div class="btn-group">
+        <a href="register.html" class="btn-primary btn-primary-landing" id="getStartedBtn">
+          Get Started Free
+        </a>
+        <a href="login.html" class="btn-secondary" id="signInBtn">
+          Sign In
+        </a>
+      </div>
+
+      <div class="feature-pills">
+        <div class="pill"><span>📍</span> Incident Reporting</div>
+        <div class="pill"><span>🗺️</span> Live Safety Map</div>
+        <div class="pill"><span>🔔</span> Real-time Alerts</div>
+        <div class="pill"><span>🛡️</span> Community Safety</div>
+        <div class="pill"><span>📊</span> Analytics</div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="page-footer">
+    &copy; 2024 <span>SafeRoute BD</span> — Smart Community Safety System, Bangladesh
+  </footer>
+
+  <script>
+    // If already logged in, redirect to dashboard
+    const token = localStorage.getItem('sr_token');
+    const user  = JSON.parse(localStorage.getItem('sr_user') || 'null');
+    if (token && user) {
+      window.location.href = user.role === 'ADMIN'
+        ? 'admin-dashboard.html'
+        : 'user-dashboard.html';
+    }
+  </script>
+</body>
+</html>

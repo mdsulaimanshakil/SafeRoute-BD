@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Create your SafeRoute BD account. Report incidents, track safety issues, and stay safe in your community." />
+  <title>Register — SafeRoute BD</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* Card shake animation for errors */
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-8px); }
+      40%      { transform: translateX(8px); }
+      60%      { transform: translateX(-5px); }
+      80%      { transform: translateX(5px); }
+    }
+    .shake { animation: shake 0.5s ease; }
+  </style>
+</head>
+<body>
+  <!-- Animated background -->
+  <div class="bg-animated" aria-hidden="true"></div>
+
+  <main class="page-wrapper">
+    <div class="auth-card" id="authCard">
+
+      <!-- Brand Header -->
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">
+          <!-- Shield SVG -->
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"/>
+            <path fill="rgba(255,255,255,0.3)" d="M12 5.5L6.5 8v4.2c0 3.85 2.55 7.45 5.5 8.35 2.95-.9 5.5-4.5 5.5-8.35V8L12 5.5z"/>
+          </svg>
+        </div>
+        <div class="brand-name">SafeRoute BD</div>
+        <div class="brand-tagline">Report. Track. Stay Safe.</div>
+      </div>
+
+      <!-- Form Header -->
+      <h1 class="form-title">Create Account</h1>
+      <p class="form-subtitle">Join the community safety network</p>
+
+      <!-- Alert box -->
+      <div id="alertBox" class="alert" role="alert" style="display:none;"></div>
+
+      <!-- Registration Form -->
+      <form id="registerForm" novalidate autocomplete="on">
+
+        <!-- Full Name -->
+        <div class="form-group">
+          <label class="form-label" for="fullName">Full Name</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            <input
+              id="fullName"
+              name="full_name"
+              type="text"
+              class="form-input"
+              placeholder="e.g. Rahim Ahmed"
+              autocomplete="name"
+              aria-describedby="fullNameError"
+              aria-required="true"
+            />
+          </div>
+          <div id="fullNameError" class="field-error" aria-live="polite"></div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              class="form-input"
+              placeholder="you@example.com"
+              autocomplete="email"
+              aria-describedby="emailError"
+              aria-required="true"
+            />
+          </div>
+          <div id="emailError" class="field-error" aria-live="polite"></div>
+        </div>
+
+        <!-- Phone -->
+        <div class="form-group">
+          <label class="form-label" for="phone">Phone Number</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              class="form-input"
+              placeholder="01XXXXXXXXX"
+              autocomplete="tel"
+              aria-describedby="phoneError"
+              aria-required="true"
+            />
+          </div>
+          <div id="phoneError" class="field-error" aria-live="polite"></div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              class="form-input has-right-icon"
+              placeholder="Min. 8 characters"
+              autocomplete="new-password"
+              aria-describedby="passwordError"
+              aria-required="true"
+            />
+            <button type="button" class="input-icon-right" id="togglePass" aria-label="Toggle password visibility">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+          <!-- Strength bar -->
+          <div class="strength-bar" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div id="strengthLabel" class="strength-label" aria-live="polite"></div>
+          <div id="passwordError" class="field-error" aria-live="polite"></div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label class="form-label" for="confirmPassword">Confirm Password</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              class="form-input has-right-icon"
+              placeholder="Re-enter your password"
+              autocomplete="new-password"
+              aria-describedby="confirmPasswordError"
+              aria-required="true"
+            />
+            <button type="button" class="input-icon-right" id="toggleConfirm" aria-label="Toggle confirm password visibility">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+          <div id="confirmPasswordError" class="field-error" aria-live="polite"></div>
+        </div>
+
+        <!-- Role -->
+        <div class="form-group">
+          <label class="form-label" for="role">Role</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <select
+              id="role"
+              name="role"
+              class="form-input"
+              aria-describedby="roleError"
+              aria-required="true"
+            >
+              <option value="" disabled selected>Select your role…</option>
+              <option value="PUBLIC_USER">👤 Public User</option>
+              <option value="ADMIN">🛡️ Admin</option>
+            </select>
+          </div>
+          <div id="roleError" class="field-error" aria-live="polite"></div>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" id="submitBtn" class="btn-primary">
+          Create Account
+        </button>
+
+      </form>
+
+      <div class="divider">already a member?</div>
+      <p class="auth-link">
+        Have an account? <a href="login.html" id="loginLink">Sign in here</a>
+      </p>
+
+    </div><!-- /.auth-card -->
+  </main>
+
+  <footer class="page-footer">
+    &copy; 2024 <span>SafeRoute BD</span> — Smart Community Safety System, Bangladesh
+  </footer>
+
+  <script src="js/register.js"></script>
+</body>
+</html>

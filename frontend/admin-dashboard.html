@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="SafeRoute BD Admin Dashboard — Manage incidents, users, and community safety alerts." />
+  <title>Admin Dashboard — SafeRoute BD</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .admin-welcome {
+      background: linear-gradient(135deg, rgba(245,158,11,0.10), rgba(245,158,11,0.03));
+      border: 1px solid rgba(245,158,11,0.20);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .admin-avatar {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, #F59E0B, #D97706);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .welcome-text h2 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.15rem; }
+    .welcome-text p  { font-size: 0.8rem; color: var(--text-muted); }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      margin-top: 0.5rem;
+    }
+    .admin-table th {
+      text-align: left;
+      padding: 0.6rem 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 0.72rem;
+      border-bottom: 1px solid var(--navy-border);
+    }
+    .admin-table td {
+      padding: 0.75rem 0.85rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(30,58,82,0.5);
+    }
+    .admin-table tr:last-child td { border-bottom: none; }
+    .admin-table tr:hover td { background: var(--white-05); }
+
+    .status-pill {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .status-open     { background: rgba(255,77,106,0.12); color: var(--danger); }
+    .status-resolved { background: var(--teal-subtle); color: var(--teal); }
+    .status-pending  { background: rgba(245,158,11,0.12); color: var(--warning); }
+
+    .section-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .admin-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.85rem;
+    }
+    .admin-action-card {
+      background: var(--white-05);
+      border: 1px solid var(--navy-border);
+      border-radius: 12px;
+      padding: 1.1rem;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+    }
+    .admin-action-card .action-icon { font-size: 1.5rem; }
+    .admin-action-card:hover {
+      border-color: var(--warning);
+      color: var(--warning);
+      background: rgba(245,158,11,0.06);
+      transform: translateY(-2px);
+    }
+
+    /* Loading skeleton pulse */
+    @keyframes shimmer {
+      0%   { opacity: 0.4; }
+      50%  { opacity: 0.9; }
+      100% { opacity: 0.4; }
+    }
+    .skeleton { animation: shimmer 1.4s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+  <div class="bg-animated" aria-hidden="true"></div>
+
+  <main class="page-wrapper">
+    <div class="auth-card dashboard-card">
+
+      <!-- Admin Header -->
+      <div class="dashboard-header">
+        <div style="display:flex; align-items:center; gap:0.85rem;">
+          <div class="brand-logo" style="width:44px;height:44px;border-radius:12px;" aria-hidden="true">
+            <svg viewBox="0 0 24 24" style="width:24px;height:24px;">
+              <path d="M12 2L4 6v6c0 5.25 3.5 10.15 8 11.35C16.5 22.15 20 17.25 20 12V6L12 2z"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-size:1rem;font-weight:700;color:var(--white);">SafeRoute BD</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Admin Control Panel</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <span class="badge badge-admin">🛡️ Admin</span>
+          <button class="btn-logout" id="logoutBtn" onclick="logout()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Logout
+          </button>
+        </div>
+      </div>
+
+      <!-- Welcome Banner -->
+      <div class="admin-welcome">
+        <div class="admin-avatar" id="adminAvatar">🛡</div>
+        <div class="welcome-text">
+          <h2 id="welcomeName" class="skeleton">Admin Panel — SafeRoute BD</h2>
+          <p id="welcomeSub">Loading admin profile…</p>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <span class="stat-value skeleton" id="statTotalUsers">—</span>
+          <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value skeleton" id="statTotalIncidents">—</span>
+          <div class="stat-label">Total Incidents</div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value skeleton" id="statOpenIncidents" style="color:var(--danger);">—</span>
+          <div class="stat-label">Open Incidents</div>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value skeleton" id="statResolvedIncidents" style="color:var(--teal);">—</span>
+          <div class="stat-label">Resolved Incidents</div>
+        </div>
+      </div>
+
+      <!-- Admin Quick Actions / Sidebar Nav -->
+      <p class="section-title">Admin Actions</p>
+      <div class="admin-actions">
+        <button class="admin-action-card" id="btnManageUsers" onclick="comingSoon()">
+          <span class="action-icon">👥</span> Manage Users
+        </button>
+        <button class="admin-action-card" id="btnAllIncidents" onclick="comingSoon()">
+          <span class="action-icon">📋</span> View All Incidents
+        </button>
+        <button class="admin-action-card" id="btnAnalytics" onclick="comingSoon()">
+          <span class="action-icon">📊</span> Analytics
+        </button>
+        <button class="admin-action-card" id="btnSendAlert" onclick="comingSoon()">
+          <span class="action-icon">📢</span> Send Alert
+        </button>
+      </div>
+
+      <!-- Recent Incidents Table -->
+      <p class="section-title">Recent Incidents</p>
+      <div style="overflow-x:auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Type</th>
+              <th>Location</th>
+              <th>Reported</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#1042</td>
+              <td>Theft</td>
+              <td>Mirpur-10, Dhaka</td>
+              <td>5 min ago</td>
+              <td><span class="status-pill status-open">Open</span></td>
+            </tr>
+            <tr>
+              <td>#1041</td>
+              <td>Traffic Accident</td>
+              <td>Gulshan-2, Dhaka</td>
+              <td>22 min ago</td>
+              <td><span class="status-pill status-pending">Pending</span></td>
+            </tr>
+            <tr>
+              <td>#1040</td>
+              <td>Road Hazard</td>
+              <td>Motijheel, Dhaka</td>
+              <td>1 hr ago</td>
+              <td><span class="status-pill status-resolved">Resolved</span></td>
+            </tr>
+            <tr>
+              <td>#1039</td>
+              <td>Flooding</td>
+              <td>Sylhet Sadar</td>
+              <td>3 hr ago</td>
+              <td><span class="status-pill status-resolved">Resolved</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="page-footer">
+    &copy; 2024 <span>SafeRoute BD</span> — Smart Community Safety System, Bangladesh
+  </footer>
+
+  <script>
+    'use strict';
+
+    const API_BASE = 'http://localhost:3000/api';
+
+    // ── Remove skeleton class helper ─────────────────────────
+    function unSkeleton(...ids) {
+      ids.forEach(id => document.getElementById(id)?.classList.remove('skeleton'));
+    }
+
+    // ── On page load: fetch /api/dashboard/admin ─────────────
+    (async function init() {
+      const token = localStorage.getItem('sr_token');
+
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      try {
+        const res  = await fetch(`${API_BASE}/dashboard/admin`, {
+          method:  'GET',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (res.status === 401) {
+          localStorage.clear();
+          window.location.href = 'login.html';
+          return;
+        }
+
+        // 403 = valid token but wrong role (PUBLIC_USER on admin endpoint)
+        if (res.status === 403) {
+          window.location.href = 'user-dashboard.html';
+          return;
+        }
+
+        const data = await res.json();
+
+        if (!data.success) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        // Extra client-side guard: redirect non-admins
+        if (data.role !== 'ADMIN') {
+          window.location.href = 'user-dashboard.html';
+          return;
+        }
+
+        // Populate welcome
+        const firstName = data.full_name.split(' ')[0];
+        document.getElementById('welcomeName').textContent = `Welcome, ${data.full_name} 🛡️`;
+        document.getElementById('welcomeSub').textContent  = `Administrator — SafeRoute BD`;
+        document.getElementById('adminAvatar').textContent = firstName.charAt(0).toUpperCase();
+
+        // Populate stats
+        const s = data.stats;
+        document.getElementById('statTotalUsers').textContent        = s.total_users;
+        document.getElementById('statTotalIncidents').textContent    = s.total_incidents;
+        document.getElementById('statOpenIncidents').textContent     = s.open_incidents;
+        document.getElementById('statResolvedIncidents').textContent = s.resolved_incidents;
+
+        unSkeleton('welcomeName', 'statTotalUsers', 'statTotalIncidents', 'statOpenIncidents', 'statResolvedIncidents');
+
+        // Update cache
+        const cachedUser = JSON.parse(localStorage.getItem('sr_user') || '{}');
+        localStorage.setItem('sr_user', JSON.stringify({
+          ...cachedUser,
+          full_name: data.full_name,
+          role:      data.role,
+        }));
+
+      } catch (err) {
+        console.error('Admin dashboard load error:', err);
+        document.getElementById('welcomeName').textContent = 'Could not load admin profile';
+        document.getElementById('welcomeSub').textContent  = 'Check your connection or try logging in again.';
+        unSkeleton('welcomeName', 'statTotalUsers', 'statTotalIncidents', 'statOpenIncidents', 'statResolvedIncidents');
+      }
+    })();
+
+    function logout() {
+      localStorage.removeItem('sr_token');
+      localStorage.removeItem('sr_user');
+      window.location.href = 'login.html';
+    }
+
+    function comingSoon() {
+      alert('This admin feature is coming in the next release!');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+# SafeRoute BD — .gitignore
+
+# Dependencies
+node_modules/
+
+# Environment secrets
+backend/.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor dirs
+.vscode/
+.idea/
