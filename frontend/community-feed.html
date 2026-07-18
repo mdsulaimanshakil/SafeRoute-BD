@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Community Feed — SafeRoute BD</title>
+  <meta name="description" content="Browse community-reported safety incidents across Bangladesh on SafeRoute BD's live community feed." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <style>
+    :root {
+      --navy:        #0D1B2A;
+      --navy-light:  #1A2D42;
+      --navy-mid:    #152235;
+      --teal:        #1DBF8A;
+      --teal-dark:   #17A87A;
+      --teal-glow:   rgba(29, 191, 138, 0.18);
+      --text-muted:  #8A9BB0;
+      --border:      rgba(29, 191, 138, 0.15);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--navy); color: #E8EFF8; min-height: 100vh; }
+
+    /* Navbar */
+    .navbar-custom { background: rgba(13,27,42,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1rem 0; }
+    .navbar-brand-text { font-weight: 700; font-size: 1.25rem; background: linear-gradient(135deg,#1DBF8A,#63E6BE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-pill { background: var(--teal-glow); border: 1px solid var(--border); color: var(--teal) !important; border-radius: 50px; padding: 0.35rem 1rem; font-size: 0.85rem; font-weight: 500; transition: all 0.2s; text-decoration: none; }
+    .nav-pill:hover { background: var(--teal); color: #fff !important; transform: translateY(-1px); }
+    .nav-pill-solid { background: var(--teal); border: 1px solid var(--teal); color: #fff !important; border-radius: 50px; padding: 0.35rem 1rem; font-size: 0.85rem; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+    .nav-pill-solid:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(29,191,138,0.4); }
+
+    /* Hero */
+    .page-hero { background: linear-gradient(135deg,var(--navy-mid) 0%,rgba(29,191,138,0.08) 100%); border-bottom: 1px solid var(--border); padding: 3rem 0 2rem; text-align: center; }
+    .page-hero h1 { font-size: 2rem; font-weight: 700; }
+    .page-hero p { color: var(--text-muted); }
+    .hero-icon { width: 64px; height: 64px; background: linear-gradient(135deg,var(--teal),#63E6BE); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.75rem; color: var(--navy); box-shadow: 0 0 30px rgba(29,191,138,0.4); }
+
+    /* Live badge */
+    .live-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(220,53,69,0.15); border: 1px solid rgba(220,53,69,0.3); color: #FF8F96; border-radius: 50px; padding: 0.25rem 0.75rem; font-size: 0.78rem; font-weight: 600; }
+    .live-dot { width: 7px; height: 7px; background: #FF4D5A; border-radius: 50%; animation: pulse-dot 1.2s ease-in-out infinite; }
+    @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+
+    /* Filter strip */
+    .filter-strip { background: var(--navy-light); border-bottom: 1px solid var(--border); padding: 1rem 0; position: sticky; top: 69px; z-index: 100; }
+    .filter-btn { background: rgba(255,255,255,0.04); border: 1.5px solid var(--border); color: #C8D8E8; border-radius: 50px; padding: 0.4rem 1.1rem; font-size: 0.83rem; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .filter-btn:hover, .filter-btn.active { background: var(--teal-glow); border-color: var(--teal); color: var(--teal); }
+    .filter-scroll { display: flex; gap: 0.6rem; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+    .filter-scroll::-webkit-scrollbar { display: none; }
+
+    /* Stats bar */
+    .stats-bar { background: rgba(29,191,138,0.05); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; gap: 2rem; flex-wrap: wrap; }
+    .stat-item { display: flex; flex-direction: column; }
+    .stat-num { font-size: 1.5rem; font-weight: 700; color: var(--teal); line-height: 1; }
+    .stat-lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+    /* Incident card */
+    .incident-card {
+      background: var(--navy-light);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.4rem;
+      margin-bottom: 1rem;
+      transition: all 0.25s;
+      animation: fadeInUp 0.35s ease both;
+    }
+    .incident-card:hover { transform: translateY(-2px); border-color: rgba(29,191,138,0.35); box-shadow: 0 8px 30px rgba(0,0,0,0.25); }
+    @keyframes fadeInUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+    .incident-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; }
+    .category-badge { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.75rem; font-weight: 700; border-radius: 6px; padding: 0.3rem 0.65rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .badge-THEFT       { background: rgba(220,53,69,0.15);  color: #FF8F96; border: 1px solid rgba(220,53,69,0.3); }
+    .badge-HARASSMENT  { background: rgba(255,82,82,0.12);  color: #FF9999; border: 1px solid rgba(255,82,82,0.3); }
+    .badge-ACCIDENT    { background: rgba(255,140,0,0.12);  color: #FFB347; border: 1px solid rgba(255,140,0,0.3); }
+    .badge-ROAD_HAZARD { background: rgba(255,193,7,0.12);  color: #FFD700; border: 1px solid rgba(255,193,7,0.3); }
+    .badge-SUSPICIOUS  { background: rgba(108,117,125,0.15);color: #ADB5BD; border: 1px solid rgba(108,117,125,0.3); }
+    .badge-WATERLOGGING{ background: rgba(13,110,253,0.12); color: #74B9FF; border: 1px solid rgba(13,110,253,0.3); }
+    .badge-OTHER       { background: rgba(29,191,138,0.12); color: var(--teal); border: 1px solid var(--border); }
+
+    .incident-desc { color: #C8D8E8; font-size: 0.9rem; line-height: 1.55; margin-bottom: 0.85rem; }
+    .incident-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.2rem; font-size: 0.8rem; color: var(--text-muted); }
+    .meta-item { display: flex; align-items: center; gap: 0.3rem; }
+
+    .upvote-btn {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .upvote-btn:hover { background: var(--teal-glow); border-color: var(--teal); color: var(--teal); }
+    .upvote-btn.upvoted { background: var(--teal-glow); border-color: var(--teal); color: var(--teal); }
+
+    /* Loading / empty states */
+    .skeleton-card { background: var(--navy-light); border: 1px solid var(--border); border-radius: 16px; padding: 1.4rem; margin-bottom: 1rem; }
+    .skeleton-line { background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; height: 14px; margin-bottom: 10px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .skeleton-line.w-30 { width: 30%; }
+    .skeleton-line.w-60 { width: 60%; }
+    .skeleton-line.w-80 { width: 80%; }
+    .skeleton-line.w-50 { width: 50%; }
+    .empty-state { text-align: center; padding: 4rem 1rem; color: var(--text-muted); }
+    .empty-state i { font-size: 3rem; margin-bottom: 1rem; color: rgba(29,191,138,0.3); }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-custom sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <i class="bi bi-shield-shaded" style="color:var(--teal);font-size:1.4rem;"></i>
+        <span class="navbar-brand-text">SafeRoute BD</span>
+      </a>
+      <div class="d-flex gap-2 align-items-center" id="navActions">
+        <a href="report-incident.html" class="nav-pill-solid"><i class="bi bi-plus-circle-fill me-1"></i>Report</a>
+        <a href="alerts.html" class="nav-pill"><i class="bi bi-bell-fill me-1"></i>Alerts</a>
+        <a href="user-dashboard.html" class="nav-pill" id="dashboardLink" style="display:none;"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+        <a href="login.html" class="nav-pill" id="loginLink"><i class="bi bi-person-fill me-1"></i>Login</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="page-hero">
+    <div class="container">
+      <div class="hero-icon"><i class="bi bi-people-fill"></i></div>
+      <h1>Community <span style="color:var(--teal)">Feed</span></h1>
+      <p class="mb-2">Real-time safety incidents reported across your community</p>
+      <span class="live-badge"><div class="live-dot"></div> Live Feed</span>
+    </div>
+  </div>
+
+  <!-- Filter strip -->
+  <div class="filter-strip">
+    <div class="container">
+      <div class="filter-scroll">
+        <button class="filter-btn active" data-filter="ALL"          onclick="setFilter('ALL', this)"><i class="bi bi-grid-3x3-gap-fill me-1"></i>All</button>
+        <button class="filter-btn" data-filter="THEFT"              onclick="setFilter('THEFT', this)"><i class="bi bi-bag-dash-fill me-1"></i>Theft</button>
+        <button class="filter-btn" data-filter="ACCIDENT"           onclick="setFilter('ACCIDENT', this)"><i class="bi bi-car-front-fill me-1"></i>Accident</button>
+        <button class="filter-btn" data-filter="ROAD_HAZARD"        onclick="setFilter('ROAD_HAZARD', this)"><i class="bi bi-cone-striped me-1"></i>Road Hazard</button>
+        <button class="filter-btn" data-filter="HARASSMENT"         onclick="setFilter('HARASSMENT', this)"><i class="bi bi-person-x-fill me-1"></i>Harassment</button>
+        <button class="filter-btn" data-filter="WATERLOGGING"       onclick="setFilter('WATERLOGGING', this)"><i class="bi bi-water me-1"></i>Waterlogging</button>
+        <button class="filter-btn" data-filter="SUSPICIOUS"         onclick="setFilter('SUSPICIOUS', this)"><i class="bi bi-eye-fill me-1"></i>Suspicious</button>
+        <button class="filter-btn" data-filter="OTHER"              onclick="setFilter('OTHER', this)"><i class="bi bi-three-dots me-1"></i>Other</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="container py-4">
+    <div class="row">
+      <!-- Feed -->
+      <div class="col-lg-8">
+        <!-- Stats bar -->
+        <div class="stats-bar">
+          <div class="stat-item"><span class="stat-num" id="totalCount">—</span><span class="stat-lbl">Total Reports</span></div>
+          <div class="stat-item"><span class="stat-num" id="todayCount">—</span><span class="stat-lbl">Today</span></div>
+          <div class="stat-item"><span class="stat-num" id="showingCount">—</span><span class="stat-lbl">Showing</span></div>
+        </div>
+
+        <div id="feedContainer">
+          <!-- Skeleton loaders -->
+          <div class="skeleton-card"><div class="skeleton-line w-30"></div><div class="skeleton-line w-80"></div><div class="skeleton-line w-60"></div></div>
+          <div class="skeleton-card"><div class="skeleton-line w-50"></div><div class="skeleton-line w-80"></div><div class="skeleton-line w-30"></div></div>
+          <div class="skeleton-card"><div class="skeleton-line w-40"></div><div class="skeleton-line w-80"></div><div class="skeleton-line w-50"></div></div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-4 mt-4 mt-lg-0">
+        <div style="background:var(--navy-light);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1rem;">
+          <h6 style="color:var(--teal);font-weight:600;margin-bottom:1rem;"><i class="bi bi-shield-exclamation me-2"></i>Quick Actions</h6>
+          <a href="report-incident.html" class="btn w-100 mb-2" style="background:var(--teal);color:#fff;border-radius:10px;font-weight:600;"><i class="bi bi-plus-circle me-2"></i>Report Incident</a>
+          <a href="alerts.html" class="btn w-100 mb-2" style="background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.3);color:#FFD700;border-radius:10px;font-weight:600;"><i class="bi bi-bell me-2"></i>View Alerts</a>
+          <a href="emergency-contacts.html" class="btn w-100" style="background:rgba(220,53,69,0.12);border:1px solid rgba(220,53,69,0.3);color:#FF8F96;border-radius:10px;font-weight:600;"><i class="bi bi-telephone-fill me-2"></i>Emergency Contacts</a>
+        </div>
+        <div style="background:var(--navy-light);border:1px solid var(--border);border-radius:16px;padding:1.5rem;">
+          <h6 style="color:var(--teal);font-weight:600;margin-bottom:0.75rem;"><i class="bi bi-bar-chart-fill me-2"></i>Category Breakdown</h6>
+          <div id="categoryBreakdown" style="font-size:0.83rem;color:var(--text-muted);">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const API_BASE = 'http://localhost:3000';
+    let allIncidents = [];
+    let currentFilter = 'ALL';
+    const token = localStorage.getItem('token');
+
+    // Update nav based on auth
+    if (token) {
+      document.getElementById('loginLink').style.display = 'none';
+      document.getElementById('dashboardLink').style.display = 'inline-flex';
+    }
+
+    function timeAgo(dateStr) {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diff = Math.floor((now - date) / 1000);
+      if (diff < 60) return 'just now';
+      if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+      if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+      return `${Math.floor(diff / 86400)}d ago`;
+    }
+
+    function isToday(dateStr) {
+      const d = new Date(dateStr);
+      const now = new Date();
+      return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }
+
+    const catIcons = {
+      THEFT: 'bi-bag-dash-fill', HARASSMENT: 'bi-person-x-fill', ACCIDENT: 'bi-car-front-fill',
+      ROAD_HAZARD: 'bi-cone-striped', SUSPICIOUS: 'bi-eye-fill', WATERLOGGING: 'bi-water', OTHER: 'bi-three-dots'
+    };
+    const catLabels = { THEFT:'Theft', HARASSMENT:'Harassment', ACCIDENT:'Accident', ROAD_HAZARD:'Road Hazard', SUSPICIOUS:'Suspicious', WATERLOGGING:'Waterlogging', OTHER:'Other' };
+
+    function renderFeed(incidents) {
+      const container = document.getElementById('feedContainer');
+      document.getElementById('showingCount').textContent = incidents.length;
+
+      if (incidents.length === 0) {
+        container.innerHTML = `<div class="empty-state"><i class="bi bi-inbox"></i><p>No incidents found for this filter.</p></div>`;
+        return;
+      }
+
+      container.innerHTML = incidents.map((inc, idx) => `
+        <div class="incident-card" style="animation-delay:${idx * 0.04}s">
+          <div class="incident-header">
+            <span class="category-badge badge-${inc.category}">
+              <i class="bi ${catIcons[inc.category] || 'bi-exclamation'}"></i>
+              ${catLabels[inc.category] || inc.category}
+            </span>
+            <span style="font-size:0.78rem;color:var(--text-muted);">#${inc.report_id}</span>
+          </div>
+          <p class="incident-desc">${inc.description.length > 100 ? inc.description.substring(0, 100) + '…' : inc.description}</p>
+          <div class="incident-meta">
+            <span class="meta-item"><i class="bi bi-geo-alt-fill" style="color:var(--teal);"></i>${inc.area_name || 'Unknown Zone'}</span>
+            <span class="meta-item"><i class="bi bi-person-circle"></i>${inc.reporter}</span>
+            <span class="meta-item"><i class="bi bi-clock"></i>${timeAgo(inc.created_at)}</span>
+            <span class="meta-item" style="margin-left:auto;">
+              <button class="upvote-btn" id="upvote-${inc.report_id}" onclick="upvote(${inc.report_id}, this)">
+                <i class="bi bi-hand-thumbs-up-fill"></i> <span id="uv-count-${inc.report_id}">${inc.upvotes || 0}</span>
+              </button>
+            </span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function setFilter(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filtered = filter === 'ALL' ? allIncidents : allIncidents.filter(i => i.category === filter);
+      renderFeed(filtered);
+    }
+
+    async function upvote(reportId, btn) {
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+      try {
+        btn.disabled = true;
+        const res = await fetch(`${API_BASE}/api/incidents/${reportId}/upvote`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.status === 401) { window.location.href = 'login.html'; return; }
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById(`uv-count-${reportId}`).textContent = data.upvotes;
+          btn.classList.add('upvoted');
+        }
+      } catch (err) {
+        console.error('Upvote failed:', err);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function renderBreakdown(incidents) {
+      const counts = {};
+      incidents.forEach(i => { counts[i.category] = (counts[i.category] || 0) + 1; });
+      const total = incidents.length || 1;
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      document.getElementById('categoryBreakdown').innerHTML = sorted.map(([cat, count]) => `
+        <div style="margin-bottom:0.6rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+            <span>${catLabels[cat] || cat}</span><span style="color:#E8EFF8;">${count}</span>
+          </div>
+          <div style="height:5px;background:rgba(255,255,255,0.06);border-radius:3px;">
+            <div style="height:100%;width:${Math.round((count/total)*100)}%;background:var(--teal);border-radius:3px;transition:width 0.5s;"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function loadFeed() {
+      try {
+        const res = await fetch(`${API_BASE}/api/incidents`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+
+        allIncidents = data.incidents;
+        const today = allIncidents.filter(i => isToday(i.created_at)).length;
+
+        document.getElementById('totalCount').textContent = allIncidents.length;
+        document.getElementById('todayCount').textContent = today;
+        document.getElementById('showingCount').textContent = allIncidents.length;
+
+        renderFeed(allIncidents);
+        renderBreakdown(allIncidents);
+      } catch (err) {
+        document.getElementById('feedContainer').innerHTML = `
+          <div class="empty-state">
+            <i class="bi bi-wifi-off"></i>
+            <p>Could not load incidents.<br><small>${err.message}</small></p>
+            <button class="btn" style="background:var(--teal);color:#fff;border-radius:10px;margin-top:1rem;" onclick="loadFeed()">Retry</button>
+          </div>`;
+      }
+    }
+
+    loadFeed();
+  </script>
+</body>
+</html>

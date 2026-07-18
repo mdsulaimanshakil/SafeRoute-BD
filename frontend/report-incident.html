@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Report an Incident — SafeRoute BD</title>
+  <meta name="description" content="Report a safety incident in your area anonymously or with your identity on SafeRoute BD." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <style>
+    :root {
+      --navy:        #0D1B2A;
+      --navy-light:  #1A2D42;
+      --navy-mid:    #152235;
+      --teal:        #1DBF8A;
+      --teal-dark:   #17A87A;
+      --teal-glow:   rgba(29, 191, 138, 0.18);
+      --text-muted:  #8A9BB0;
+      --border:      rgba(29, 191, 138, 0.15);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--navy);
+      color: #E8EFF8;
+      min-height: 100vh;
+    }
+
+    /* ── Navbar ── */
+    .navbar-custom {
+      background: rgba(13, 27, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 0;
+    }
+    .navbar-brand-text {
+      font-weight: 700;
+      font-size: 1.25rem;
+      background: linear-gradient(135deg, #1DBF8A, #63E6BE);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-pill {
+      background: var(--teal-glow);
+      border: 1px solid var(--border);
+      color: var(--teal) !important;
+      border-radius: 50px;
+      padding: 0.35rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .nav-pill:hover {
+      background: var(--teal);
+      color: #fff !important;
+      transform: translateY(-1px);
+    }
+
+    /* ── Hero ── */
+    .page-hero {
+      background: linear-gradient(135deg, var(--navy-mid) 0%, rgba(29,191,138,0.08) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 0 2rem;
+      text-align: center;
+    }
+    .page-hero h1 {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    .page-hero p {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+    .hero-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--teal), #63E6BE);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 1.75rem;
+      color: var(--navy);
+      box-shadow: 0 0 30px rgba(29,191,138,0.4);
+    }
+
+    /* ── Card ── */
+    .form-card {
+      background: var(--navy-light);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    /* ── Form controls ── */
+    .form-label {
+      font-weight: 500;
+      color: #C8D8E8;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .form-control, .form-select {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      color: #E8EFF8;
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      transition: all 0.25s;
+    }
+    .form-control:focus, .form-select:focus {
+      background: rgba(29,191,138,0.06);
+      border-color: var(--teal);
+      color: #E8EFF8;
+      box-shadow: 0 0 0 3px rgba(29,191,138,0.15);
+    }
+    .form-control::placeholder { color: var(--text-muted); }
+    .form-select option { background: var(--navy-light); color: #E8EFF8; }
+
+    /* ── Anonymous Toggle ── */
+    .anon-toggle {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .anon-toggle:hover { border-color: var(--teal); background: var(--teal-glow); }
+    .anon-toggle input[type="checkbox"] { display: none; }
+    .toggle-switch {
+      width: 44px;
+      height: 24px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      position: relative;
+      flex-shrink: 0;
+      transition: background 0.25s;
+    }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.25s;
+    }
+    input[type="checkbox"]:checked + .toggle-switch {
+      background: var(--teal);
+    }
+    input[type="checkbox"]:checked + .toggle-switch::after {
+      transform: translateX(20px);
+    }
+    .anon-label { flex: 1; }
+    .anon-label strong { display: block; font-size: 0.95rem; }
+    .anon-label small { color: var(--text-muted); font-size: 0.8rem; }
+
+    /* ── Category badges ── */
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 0.6rem;
+    }
+    .cat-btn {
+      background: rgba(255,255,255,0.04);
+      border: 1.5px solid var(--border);
+      color: #C8D8E8;
+      border-radius: 10px;
+      padding: 0.55rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+    .cat-btn:hover, .cat-btn.active {
+      background: var(--teal-glow);
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+    .cat-btn input { display: none; }
+
+    /* ── Submit button ── */
+    .btn-submit {
+      background: linear-gradient(135deg, var(--teal), #1aa876);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
+      border-radius: 12px;
+      padding: 0.85rem 2rem;
+      width: 100%;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(29,191,138,0.45);
+    }
+    .btn-submit:disabled { opacity: 0.65; cursor: not-allowed; }
+
+    /* ── Alert messages ── */
+    .alert-custom {
+      border-radius: 12px;
+      border: none;
+      font-size: 0.9rem;
+      padding: 1rem 1.25rem;
+    }
+    .alert-success-custom {
+      background: rgba(29,191,138,0.12);
+      border: 1px solid rgba(29,191,138,0.35);
+      color: #63E6BE;
+    }
+    .alert-danger-custom {
+      background: rgba(220,53,69,0.1);
+      border: 1px solid rgba(220,53,69,0.3);
+      color: #FF8F96;
+    }
+
+    /* ── Spinner ── */
+    .btn-spinner { display: none; }
+    .btn-submit.loading .btn-text { display: none; }
+    .btn-submit.loading .btn-spinner { display: inline-block; }
+
+    /* ── Char counter ── */
+    .char-counter { font-size: 0.78rem; color: var(--text-muted); text-align: right; margin-top: 0.25rem; }
+
+    /* ── Category hidden input ── */
+    #category_input { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-custom sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <i class="bi bi-shield-shaded text-teal" style="color:var(--teal);font-size:1.4rem;"></i>
+        <span class="navbar-brand-text">SafeRoute BD</span>
+      </a>
+      <div class="d-flex gap-2 align-items-center">
+        <a href="community-feed.html" class="nav-pill"><i class="bi bi-people-fill me-1"></i>Community</a>
+        <a href="user-dashboard.html" class="nav-pill"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+        <a href="#" id="logoutBtn" class="nav-pill" onclick="logout(event)"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="page-hero">
+    <div class="container">
+      <div class="hero-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+      <h1>Report an <span style="color:var(--teal)">Incident</span></h1>
+      <p>Help keep your community safe by reporting hazards, crimes, and emergencies</p>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-7 col-md-9">
+
+        <!-- Success / Error messages -->
+        <div id="alertBox" class="mb-4" style="display:none;"></div>
+
+        <div class="form-card">
+          <form id="reportForm" novalidate>
+
+            <!-- Category -->
+            <div class="mb-4">
+              <label class="form-label"><i class="bi bi-tag-fill me-1" style="color:var(--teal);"></i>Incident Category <span style="color:#FF8F96;">*</span></label>
+              <input type="hidden" id="category_input" name="category" required />
+              <div class="category-grid" id="categoryGrid">
+                <button type="button" class="cat-btn" data-value="THEFT"       onclick="selectCategory(this)"><i class="bi bi-bag-dash-fill"></i> Theft</button>
+                <button type="button" class="cat-btn" data-value="HARASSMENT"  onclick="selectCategory(this)"><i class="bi bi-person-x-fill"></i> Harassment</button>
+                <button type="button" class="cat-btn" data-value="ACCIDENT"    onclick="selectCategory(this)"><i class="bi bi-car-front-fill"></i> Accident</button>
+                <button type="button" class="cat-btn" data-value="ROAD_HAZARD" onclick="selectCategory(this)"><i class="bi bi-cone-striped"></i> Road Hazard</button>
+                <button type="button" class="cat-btn" data-value="SUSPICIOUS"  onclick="selectCategory(this)"><i class="bi bi-eye-fill"></i> Suspicious</button>
+                <button type="button" class="cat-btn" data-value="WATERLOGGING" onclick="selectCategory(this)"><i class="bi bi-water"></i> Waterlogging</button>
+                <button type="button" class="cat-btn" data-value="OTHER"       onclick="selectCategory(this)"><i class="bi bi-three-dots"></i> Other</button>
+              </div>
+              <div id="categoryError" class="text-danger mt-1" style="font-size:0.8rem;display:none;">Please select a category.</div>
+            </div>
+
+            <!-- Zone -->
+            <div class="mb-4">
+              <label for="zoneSelect" class="form-label"><i class="bi bi-geo-alt-fill me-1" style="color:var(--teal);"></i>Location / Zone <span style="color:#FF8F96;">*</span></label>
+              <select id="zoneSelect" class="form-select" required>
+                <option value="">— Loading zones… —</option>
+              </select>
+              <div id="zoneError" class="text-danger mt-1" style="font-size:0.8rem;display:none;">Please select a zone.</div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-4">
+              <label for="description" class="form-label"><i class="bi bi-chat-text-fill me-1" style="color:var(--teal);"></i>Description <span style="color:#FF8F96;">*</span></label>
+              <textarea id="description" class="form-control" rows="5" maxlength="1000"
+                placeholder="Describe what happened, when, and any other relevant details…" required></textarea>
+              <div class="char-counter"><span id="charCount">0</span> / 1000</div>
+              <div id="descError" class="text-danger mt-1" style="font-size:0.8rem;display:none;">Please provide a description.</div>
+            </div>
+
+            <!-- Anonymous toggle -->
+            <div class="mb-4">
+              <label class="form-label"><i class="bi bi-incognito me-1" style="color:var(--teal);"></i>Submit Anonymously</label>
+              <label class="anon-toggle" for="anonCheck">
+                <input type="checkbox" id="anonCheck" />
+                <div class="toggle-switch"></div>
+                <div class="anon-label">
+                  <strong>Anonymous Submission</strong>
+                  <small>Your identity will not be attached to this report</small>
+                </div>
+              </label>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn-submit" id="submitBtn">
+              <span class="btn-text"><i class="bi bi-send-fill me-2"></i>Submit Report</span>
+              <span class="btn-spinner">
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>Submitting…
+              </span>
+            </button>
+
+          </form>
+        </div><!-- /.form-card -->
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const API_BASE = 'http://localhost:3000';
+
+    // ── Auth guard ──
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    function logout(e) {
+      e.preventDefault();
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    }
+
+    // ── Load zones ──
+    async function loadZones() {
+      try {
+        const res = await fetch(`${API_BASE}/api/zones`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'Failed to load zones');
+
+        const select = document.getElementById('zoneSelect');
+        select.innerHTML = '<option value="">— Select a zone —</option>';
+        data.zones.forEach(z => {
+          const opt = document.createElement('option');
+          opt.value = z.ZONE_ID;
+          opt.textContent = `${z.AREA_NAME}${z.IS_HIGH_RISK === 1 ? ' ⚠️ High Risk' : ''}`;
+          select.appendChild(opt);
+        });
+      } catch (err) {
+        document.getElementById('zoneSelect').innerHTML = '<option value="">— Failed to load zones —</option>';
+        showAlert('danger', 'Could not load zones: ' + err.message);
+      }
+    }
+
+    // ── Category selection ──
+    function selectCategory(btn) {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('category_input').value = btn.dataset.value;
+      document.getElementById('categoryError').style.display = 'none';
+    }
+
+    // ── Char counter ──
+    document.getElementById('description').addEventListener('input', function () {
+      document.getElementById('charCount').textContent = this.value.length;
+    });
+
+    // ── Alert display ──
+    function showAlert(type, message) {
+      const box = document.getElementById('alertBox');
+      box.innerHTML = `<div class="alert-custom ${type === 'success' ? 'alert-success-custom' : 'alert-danger-custom'}">
+        <i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-triangle-fill'} me-2"></i>${message}
+      </div>`;
+      box.style.display = 'block';
+      box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // ── Form submit ──
+    document.getElementById('reportForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const category    = document.getElementById('category_input').value;
+      const zone_id     = parseInt(document.getElementById('zoneSelect').value);
+      const description = document.getElementById('description').value.trim();
+      const is_anon     = document.getElementById('anonCheck').checked ? 1 : 0;
+
+      // Validate
+      let valid = true;
+      if (!category) {
+        document.getElementById('categoryError').style.display = 'block';
+        valid = false;
+      }
+      if (!zone_id) {
+        document.getElementById('zoneError').style.display = 'block';
+        valid = false;
+      } else {
+        document.getElementById('zoneError').style.display = 'none';
+      }
+      if (!description) {
+        document.getElementById('descError').style.display = 'block';
+        valid = false;
+      } else {
+        document.getElementById('descError').style.display = 'none';
+      }
+      if (!valid) return;
+
+      // Submit
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.classList.add('loading');
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/incidents`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ zone_id, category, description, is_anon })
+        });
+
+        const data = await res.json();
+
+        if (res.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = 'login.html';
+          return;
+        }
+
+        if (!data.success) {
+          throw new Error(data.message || 'Failed to submit report.');
+        }
+
+        showAlert('success', `✅ Incident reported successfully! Report ID: #${data.report_id}. Redirecting to dashboard…`);
+        document.getElementById('reportForm').reset();
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('category_input').value = '';
+        document.getElementById('charCount').textContent = '0';
+
+        setTimeout(() => { window.location.href = 'user-dashboard.html'; }, 2500);
+
+      } catch (err) {
+        showAlert('danger', err.message || 'An unexpected error occurred. Please try again.');
+      } finally {
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
+      }
+    });
+
+    // ── Init ──
+    loadZones();
+  </script>
+</body>
+</html>

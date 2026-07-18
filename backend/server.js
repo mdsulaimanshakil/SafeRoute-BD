@@ -8,6 +8,9 @@ const rateLimit   = require('express-rate-limit');
 const db          = require('./config/db');
 const authRoutes       = require('./routes/auth');
 const dashboardRoutes  = require('./routes/dashboard');
+const incidentRoutes   = require('./routes/incidents');
+const emergencyRoutes  = require('./routes/emergency');
+const alertRoutes      = require('./routes/alerts');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -48,6 +51,10 @@ const authLimiter = rateLimit({
 // ──────────────────────────────────────────────────────────
 app.use('/api/auth',      authLimiter, authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/incidents', incidentRoutes);
+app.use('/api/zones',     incidentRoutes);
+app.use('/api/emergency', emergencyRoutes);
+app.use('/api/alerts',    alertRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {
