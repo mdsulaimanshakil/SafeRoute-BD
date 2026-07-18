@@ -1,0 +1,70 @@
+/* Shared contrast overrides for dark SafeRoute BD pages */
+
+:root {
+  --sf-text-primary: #F7FBFF;
+  --sf-text-secondary: #D7E3EE;
+  --sf-text-muted: #B1C4D4;
+}
+
+body,
+body :is(p, small, label, li, td, th, span, div, a, button, input, select, textarea, option) {
+  color: var(--sf-text-primary) !important;
+}
+
+body {
+  color-scheme: dark;
+}
+
+body :is(h1, h2, h3, h4, h5, h6) {
+  color: var(--sf-text-primary) !important;
+}
+
+body :is(
+  .text-muted,
+  .text-secondary,
+  .form-label,
+  .form-check-label,
+  .form-text,
+  .card-subtitle,
+  .nav-link,
+  .page-footer,
+  .results-meta,
+  .inc-meta,
+  .activity-text,
+  .activity-time,
+  .stat-label,
+  .score-text,
+  .empty-state,
+  .legend-item,
+  .stat-row,
+  .popup-score,
+  .relation-badge,
+  .filter-check,
+  .page-info,
+  .alert,
+  .hero-subtitle,
+  .hero-copy,
+  .page-hero p,
+  .welcome-text p,
+  .info-label,
+  .toast-item,
+  .breadcrumb,
+  .dropdown-item,
+  .table-custom th,
+  .table-custom td
+) {
+  color: var(--sf-text-secondary) !important;
+}
+
+body :is(.badge, .btn, .nav-pill, .filter-btn, .upvote-btn) {
+  color: var(--sf-text-primary) !important;
+}
+
+body :is(select, option) {
+  background-color: #1A3044 !important;
+  color: var(--sf-text-primary) !important;
+}
+
+::placeholder {
+  color: var(--sf-text-muted) !important;
+}

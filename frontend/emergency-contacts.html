@@ -4,359 +4,200 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Emergency Contacts — SafeRoute BD</title>
-  <meta name="description" content="Manage your emergency contacts on SafeRoute BD for quick access during safety incidents." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/contrast.css" />
   <style>
-    :root {
-      --navy:        #0D1B2A;
-      --navy-light:  #1A2D42;
-      --navy-mid:    #152235;
-      --teal:        #1DBF8A;
-      --teal-dark:   #17A87A;
-      --teal-glow:   rgba(29, 191, 138, 0.18);
-      --text-muted:  #8A9BB0;
-      --border:      rgba(29, 191, 138, 0.15);
-    }
-    *, *::before, *::after { box-sizing: border-box; }
+    :root { --navy: #0D1B2A; --navy-light: #1A2D42; --teal: #1DBF8A; --border: rgba(29, 191, 138, 0.15); }
     body { font-family: 'Inter', sans-serif; background: var(--navy); color: #E8EFF8; min-height: 100vh; }
-
-    /* Navbar */
-    .navbar-custom { background: rgba(13,27,42,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1rem 0; }
-    .navbar-brand-text { font-weight: 700; font-size: 1.25rem; background: linear-gradient(135deg,#1DBF8A,#63E6BE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .nav-pill { background: var(--teal-glow); border: 1px solid var(--border); color: var(--teal) !important; border-radius: 50px; padding: 0.35rem 1rem; font-size: 0.85rem; font-weight: 500; transition: all 0.2s; text-decoration: none; }
-    .nav-pill:hover { background: var(--teal); color: #fff !important; transform: translateY(-1px); }
-
-    /* Hero */
-    .page-hero { background: linear-gradient(135deg,var(--navy-mid) 0%,rgba(29,191,138,0.08) 100%); border-bottom: 1px solid var(--border); padding: 3rem 0 2rem; text-align: center; }
-    .page-hero h1 { font-size: 2rem; font-weight: 700; }
-    .page-hero p { color: var(--text-muted); }
-    .hero-icon { width: 64px; height: 64px; background: linear-gradient(135deg, #FF8F96, #FF4D5A); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.75rem; color: #fff; box-shadow: 0 0 30px rgba(220,53,69,0.4); }
-
-    /* Card */
-    .section-card { background: var(--navy-light); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1.5rem; }
-    .section-title { font-size: 1rem; font-weight: 600; color: var(--teal); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
-
-    /* Form */
-    .form-label { font-weight: 500; color: #C8D8E8; margin-bottom: 0.4rem; font-size: 0.88rem; }
-    .form-control, .form-select { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: #E8EFF8; border-radius: 12px; padding: 0.7rem 1rem; font-size: 0.95rem; transition: all 0.25s; }
-    .form-control:focus, .form-select:focus { background: rgba(29,191,138,0.06); border-color: var(--teal); color: #E8EFF8; box-shadow: 0 0 0 3px rgba(29,191,138,0.15); }
-    .form-control::placeholder { color: var(--text-muted); }
-    .form-select option { background: var(--navy-light); color: #E8EFF8; }
-
-    /* Submit button */
-    .btn-add { background: linear-gradient(135deg,var(--teal),#1aa876); border: none; color: #fff; font-weight: 600; border-radius: 12px; padding: 0.75rem 1.5rem; transition: all 0.25s; }
-    .btn-add:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(29,191,138,0.4); color: #fff; }
-    .btn-add:disabled { opacity: 0.65; }
-
-    /* Contact cards */
-    .contact-card {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 1.1rem 1.3rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 0.75rem;
-      transition: all 0.25s;
-      animation: fadeInUp 0.3s ease both;
-    }
-    .contact-card:hover { border-color: rgba(29,191,138,0.35); background: rgba(29,191,138,0.03); }
-    @keyframes fadeInUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-
-    .contact-avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 1.1rem;
-      flex-shrink: 0;
-    }
-    .avatar-Family    { background: rgba(29,191,138,0.2); color: var(--teal); }
-    .avatar-Friend    { background: rgba(99,230,190,0.2); color: #63E6BE; }
-    .avatar-Colleague { background: rgba(13,110,253,0.2); color: #74B9FF; }
-    .avatar-Doctor    { background: rgba(220,53,69,0.2);  color: #FF8F96; }
-    .avatar-Police    { background: rgba(255,193,7,0.2);  color: #FFD700; }
-
-    .contact-info { flex: 1; min-width: 0; }
-    .contact-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .contact-phone { font-size: 0.85rem; color: var(--text-muted); }
-    .relation-badge { display: inline-block; font-size: 0.72rem; font-weight: 600; border-radius: 5px; padding: 0.15rem 0.5rem; background: rgba(29,191,138,0.12); color: var(--teal); border: 1px solid var(--border); }
-
-    .btn-delete { background: rgba(220,53,69,0.1); border: 1px solid rgba(220,53,69,0.25); color: #FF8F96; border-radius: 8px; padding: 0.4rem 0.75rem; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
-    .btn-delete:hover { background: rgba(220,53,69,0.2); border-color: rgba(220,53,69,0.5); }
-
-    /* Alerts */
-    .alert-custom { border-radius: 12px; border: none; font-size: 0.9rem; padding: 0.9rem 1.2rem; }
-    .alert-success-custom { background: rgba(29,191,138,0.12); border: 1px solid rgba(29,191,138,0.35); color: #63E6BE; }
-    .alert-danger-custom  { background: rgba(220,53,69,0.1);   border: 1px solid rgba(220,53,69,0.3);  color: #FF8F96; }
-
-    /* Empty state */
-    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
-    .empty-state i { font-size: 2.5rem; margin-bottom: 0.75rem; color: rgba(29,191,138,0.3); display: block; }
-
-    /* Limit warning */
-    .limit-info { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; }
-
-    /* Btn spinner */
-    .btn-spinner { display: none; }
-    .btn-add.loading .btn-text { display: none; }
-    .btn-add.loading .btn-spinner { display: inline-block; }
+    .navbar-custom { background: rgba(13,27,42,0.95); border-bottom: 1px solid var(--border); padding: 1rem 0; }
+    .navbar-brand-text { font-weight: 700; font-size: 1.25rem; background: linear-gradient(135deg,#1DBF8A,#63E6BE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .card-custom { background: var(--navy-light); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .form-control, .form-select { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; }
+    .form-control:focus, .form-select:focus { background: rgba(255,255,255,0.08); border-color: var(--teal); color: #fff; box-shadow: none; }
+    .btn-teal { background: var(--teal); color: #fff; font-weight: 600; padding: 0.5rem 1rem; border: none; border-radius: 8px; transition: all 0.2s; }
+    .btn-teal:hover { background: #159a6e; color: #fff; }
+    .btn-danger-soft { background: rgba(220,53,69,0.15); color: #FF8F96; border: 1px solid rgba(220,53,69,0.3); border-radius: 8px; padding: 0.3rem 0.7rem; font-size: 0.85rem; }
+    .btn-danger-soft:hover { background: rgba(220,53,69,0.25); color: #FF8F96; }
+    .relation-badge { background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.75rem; color: #C8D8E8; }
   </style>
 </head>
 <body>
-
-  <!-- Navbar -->
-  <nav class="navbar navbar-custom sticky-top">
-    <div class="container">
+  <nav class="navbar navbar-custom">
+    <div class="container d-flex justify-content-between align-items-center">
       <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
         <i class="bi bi-shield-shaded" style="color:var(--teal);font-size:1.4rem;"></i>
         <span class="navbar-brand-text">SafeRoute BD</span>
       </a>
-      <div class="d-flex gap-2 align-items-center">
-        <a href="community-feed.html" class="nav-pill"><i class="bi bi-people-fill me-1"></i>Community</a>
-        <a href="user-dashboard.html" class="nav-pill"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
-        <a href="#" class="nav-pill" onclick="logout(event)"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
-      </div>
+      <button class="btn btn-outline-light btn-sm" onclick="goBack()"><i class="bi bi-arrow-left"></i> Back</button>
     </div>
   </nav>
 
-  <!-- Hero -->
-  <div class="page-hero">
-    <div class="container">
-      <div class="hero-icon"><i class="bi bi-telephone-fill"></i></div>
-      <h1>Emergency <span style="color:#FF8F96;">Contacts</span></h1>
-      <p>Keep your trusted contacts ready for any safety emergency</p>
-    </div>
-  </div>
-
-  <div class="container py-5">
-    <div class="row justify-content-center">
-      <div class="col-lg-8 col-md-10">
-
-        <!-- Global messages -->
-        <div id="globalAlert" style="display:none;" class="mb-3"></div>
-
-        <!-- Add contact form -->
-        <div class="section-card">
-          <div class="section-title"><i class="bi bi-person-plus-fill"></i>Add New Contact</div>
-          <form id="addContactForm" novalidate>
-            <div id="formAlert" style="display:none;" class="mb-3"></div>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label for="contactName" class="form-label">Full Name <span style="color:#FF8F96;">*</span></label>
-                <input type="text" id="contactName" class="form-control" placeholder="e.g. Rahim Ahmed" maxlength="100" required />
-              </div>
-              <div class="col-md-6">
-                <label for="contactPhone" class="form-label">Phone Number <span style="color:#FF8F96;">*</span></label>
-                <input type="tel" id="contactPhone" class="form-control" placeholder="e.g. 01711-123456" maxlength="20" required />
-              </div>
-              <div class="col-md-6">
-                <label for="contactRelation" class="form-label">Relation <span style="color:#FF8F96;">*</span></label>
-                <select id="contactRelation" class="form-select" required>
-                  <option value="">— Select relation —</option>
-                  <option value="Family">Family</option>
-                  <option value="Friend">Friend</option>
-                  <option value="Colleague">Colleague</option>
-                  <option value="Doctor">Doctor</option>
-                  <option value="Police">Police</option>
-                </select>
-              </div>
-              <div class="col-md-6 d-flex align-items-end">
-                <button type="submit" class="btn btn-add w-100" id="addBtn">
-                  <span class="btn-text"><i class="bi bi-person-plus-fill me-2"></i>Add Contact</span>
-                  <span class="btn-spinner"><span class="spinner-border spinner-border-sm me-2"></span>Adding…</span>
-                </button>
-              </div>
+  <div class="container mt-4 mb-5">
+    <div class="row">
+      <!-- Add form -->
+      <div class="col-md-5 col-lg-4 mb-4">
+        <h5 class="mb-3 fw-bold">Add Contact</h5>
+        <div class="card-custom">
+          <form id="contactForm" onsubmit="addContact(event)">
+            <div id="addError" class="alert alert-danger" style="display:none; padding:0.5rem; font-size:0.85rem;"></div>
+            <div class="mb-3">
+              <label class="form-label text-muted small text-uppercase fw-bold">Name</label>
+              <input type="text" class="form-control form-control-sm" id="cName" required>
             </div>
+            <div class="mb-3">
+              <label class="form-label text-muted small text-uppercase fw-bold">Phone</label>
+              <input type="tel" class="form-control form-control-sm" id="cPhone" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label text-muted small text-uppercase fw-bold">Relation</label>
+              <select class="form-select form-select-sm" id="cRelation" required>
+                <option value="">Select...</option>
+                <option value="Family">Family</option>
+                <option value="Friend">Friend</option>
+                <option value="Colleague">Colleague</option>
+                <option value="Doctor">Doctor</option>
+                <option value="Police">Police</option>
+              </select>
+            </div>
+            <button type="submit" class="btn-teal w-100 btn-sm" id="addBtn">
+              <span class="spinner-border spinner-border-sm me-1" id="addSpinner" style="display:none;"></span> Add Contact
+            </button>
           </form>
         </div>
-
-        <!-- Contacts list -->
-        <div class="section-card">
-          <div class="section-title">
-            <i class="bi bi-people-fill"></i>Your Contacts
-            <span id="contactCount" style="font-size:0.8rem;color:var(--text-muted);font-weight:400;margin-left:auto;"></span>
-          </div>
-          <div id="contactsList">
-            <div class="empty-state"><i class="bi bi-hourglass-split"></i><p>Loading contacts…</p></div>
+      </div>
+      
+      <!-- List -->
+      <div class="col-md-7 col-lg-8">
+        <h5 class="mb-3 fw-bold">My Emergency Contacts</h5>
+        <div id="listError" class="alert alert-danger" style="display:none; padding:0.5rem; font-size:0.85rem;"></div>
+        <div id="contactsContainer">
+          <div class="text-center mt-4" id="loadingContacts">
+            <div class="spinner-border text-success" role="status"></div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const API_BASE = 'http://localhost:3000';
-    const token = localStorage.getItem('token');
-
-    // Auth guard
-    if (!token) window.location.href = 'login.html';
-
-    function logout(e) {
-      e.preventDefault();
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = 'login.html';
+    function getUser() {
+      const token = localStorage.getItem('token');
+      if (!token) return null;
+      try { return JSON.parse(atob(token.split('.')[1])); } catch(e) { return null; }
     }
 
-    function showGlobalAlert(type, msg) {
-      const box = document.getElementById('globalAlert');
-      box.innerHTML = `<div class="alert-custom ${type === 'success' ? 'alert-success-custom' : 'alert-danger-custom'}">
-        <i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-triangle-fill'} me-2"></i>${msg}
-      </div>`;
-      box.style.display = 'block';
-      setTimeout(() => { box.style.display = 'none'; }, 4000);
-    }
+    const user = getUser();
+    if (!user) window.location.href = 'login.html';
 
-    function showFormAlert(type, msg) {
-      const box = document.getElementById('formAlert');
-      box.innerHTML = `<div class="alert-custom ${type === 'success' ? 'alert-success-custom' : 'alert-danger-custom'}">
-        <i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-triangle-fill'} me-2"></i>${msg}
-      </div>`;
-      box.style.display = 'block';
-    }
-
-    function getInitials(name) {
-      return name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-    }
-
-    function renderContacts(contacts) {
-      const list = document.getElementById('contactsList');
-      const countEl = document.getElementById('contactCount');
-      countEl.textContent = `${contacts.length} contact${contacts.length !== 1 ? 's' : ''}`;
-
-      if (contacts.length === 0) {
-        list.innerHTML = `<div class="empty-state">
-          <i class="bi bi-person-x"></i>
-          <p>No emergency contacts added yet.<br><small>Add your first contact above.</small></p>
-        </div>`;
-        return;
-      }
-
-      list.innerHTML = contacts.map((c, idx) => `
-        <div class="contact-card" id="contact-card-${c.contact_id}" style="animation-delay:${idx * 0.05}s">
-          <div class="contact-avatar avatar-${c.relation}">${getInitials(c.name)}</div>
-          <div class="contact-info">
-            <div class="contact-name">${escHtml(c.name)}</div>
-            <div class="contact-phone"><i class="bi bi-telephone me-1"></i>${escHtml(c.phone)}</div>
-            <span class="relation-badge">${escHtml(c.relation)}</span>
-          </div>
-          <button class="btn-delete" onclick="deleteContact(${c.contact_id}, '${escHtml(c.name)}')">
-            <i class="bi bi-trash3-fill me-1"></i>Delete
-          </button>
-        </div>
-      `).join('');
-    }
-
-    function escHtml(str) {
-      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
+    function goBack() { window.location.href = 'user-dashboard.html'; }
 
     async function loadContacts() {
-      try {
-        const res = await fetch(`${API_BASE}/api/emergency/contacts`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.status === 401) { window.location.href = 'login.html'; return; }
-        const data = await res.json();
-        if (!data.success) throw new Error(data.message);
-        renderContacts(data.contacts);
-      } catch (err) {
-        document.getElementById('contactsList').innerHTML = `<div class="empty-state">
-          <i class="bi bi-wifi-off"></i>
-          <p>Failed to load contacts.<br><small>${err.message}</small></p>
-          <button class="btn" style="background:var(--teal);color:#fff;border-radius:10px;margin-top:0.75rem;" onclick="loadContacts()">Retry</button>
-        </div>`;
-      }
-    }
-
-    async function deleteContact(contactId, name) {
-      if (!confirm(`Delete contact "${name}"? This action cannot be undone.`)) return;
+      document.getElementById('loadingContacts').style.display = 'block';
+      const container = document.getElementById('contactsContainer');
+      const errBox = document.getElementById('listError');
+      errBox.style.display = 'none';
 
       try {
-        const res = await fetch(`${API_BASE}/api/emergency/contacts/${contactId}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
+        const res = await fetch('http://localhost:3000/api/emergency/contacts', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
-        if (res.status === 401) { window.location.href = 'login.html'; return; }
         const data = await res.json();
-        if (!data.success) throw new Error(data.message);
+        if (!data.success) throw new Error(data.message || 'Failed to load contacts');
 
-        // Animate removal
-        const card = document.getElementById(`contact-card-${contactId}`);
-        if (card) {
-          card.style.transition = 'opacity 0.3s, transform 0.3s';
-          card.style.opacity = '0';
-          card.style.transform = 'translateX(20px)';
-          setTimeout(() => loadContacts(), 350);
+        document.getElementById('loadingContacts').style.display = 'none';
+        
+        // Keep loading div, replace rest
+        container.innerHTML = '<div class="text-center mt-4" id="loadingContacts" style="display:none;"><div class="spinner-border text-success" role="status"></div></div>';
+        
+        if (data.contacts.length === 0) {
+          container.innerHTML += '<div class="text-muted text-center mt-3">No emergency contacts added yet.</div>';
+          return;
         }
-        showGlobalAlert('success', `Contact "${name}" deleted successfully.`);
+
+        data.contacts.forEach(c => {
+          container.innerHTML += `
+            <div class="card-custom d-flex justify-content-between align-items-center" id="contact-${c.contact_id}">
+              <div>
+                <h6 class="mb-1">${c.name}</h6>
+                <div class="text-muted small mb-2"><i class="bi bi-telephone-fill me-1"></i> ${c.phone}</div>
+                <span class="relation-badge">${c.relation}</span>
+              </div>
+              <button class="btn btn-danger-soft" onclick="deleteContact(${c.contact_id})">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          `;
+        });
       } catch (err) {
-        showGlobalAlert('danger', err.message || 'Failed to delete contact.');
+        document.getElementById('loadingContacts').style.display = 'none';
+        errBox.textContent = err.message;
+        errBox.style.display = 'block';
       }
     }
 
-    document.getElementById('addContactForm').addEventListener('submit', async function (e) {
+    async function addContact(e) {
       e.preventDefault();
-      document.getElementById('formAlert').style.display = 'none';
+      const errBox = document.getElementById('addError');
+      errBox.style.display = 'none';
+      document.getElementById('addBtn').disabled = true;
+      document.getElementById('addSpinner').style.display = 'inline-block';
 
-      const name     = document.getElementById('contactName').value.trim();
-      const phone    = document.getElementById('contactPhone').value.trim();
-      const relation = document.getElementById('contactRelation').value;
-
-      if (!name || !phone || !relation) {
-        showFormAlert('danger', 'Please fill in all fields.');
-        return;
-      }
-      if (!/^[0-9+\-\s()]{7,20}$/.test(phone)) {
-        showFormAlert('danger', 'Please enter a valid phone number.');
-        return;
-      }
-
-      const addBtn = document.getElementById('addBtn');
-      addBtn.classList.add('loading');
-      addBtn.disabled = true;
+      const body = {
+        name: document.getElementById('cName').value,
+        phone: document.getElementById('cPhone').value,
+        relation: document.getElementById('cRelation').value
+      };
 
       try {
-        const res = await fetch(`${API_BASE}/api/emergency/contacts`, {
+        const res = await fetch('http://localhost:3000/api/emergency/contacts', {
           method: 'POST',
-          headers: {
+          headers: { 
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}` 
           },
-          body: JSON.stringify({ name, phone, relation })
+          body: JSON.stringify(body)
         });
-        if (res.status === 401) { window.location.href = 'login.html'; return; }
         const data = await res.json();
-        if (!data.success) throw new Error(data.message);
-
-        // Reset form
-        document.getElementById('contactName').value = '';
-        document.getElementById('contactPhone').value = '';
-        document.getElementById('contactRelation').value = '';
-        document.getElementById('formAlert').style.display = 'none';
-
-        showGlobalAlert('success', `Contact "${name}" added successfully!`);
+        if (!data.success) throw new Error(data.message || 'Failed to add contact');
+        
+        document.getElementById('contactForm').reset();
         loadContacts();
       } catch (err) {
-        showFormAlert('danger', err.message || 'Failed to add contact.');
+        errBox.textContent = err.message;
+        errBox.style.display = 'block';
       } finally {
-        addBtn.classList.remove('loading');
-        addBtn.disabled = false;
+        document.getElementById('addBtn').disabled = false;
+        document.getElementById('addSpinner').style.display = 'none';
       }
-    });
+    }
 
-    loadContacts();
+    async function deleteContact(id) {
+      if (!confirm('Are you sure you want to delete this emergency contact?')) return;
+      
+      try {
+        const res = await fetch(`http://localhost:3000/api/emergency/contacts/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'Failed to delete contact');
+        
+        const el = document.getElementById(`contact-${id}`);
+        if(el) el.remove();
+        
+        // If empty now
+        const container = document.getElementById('contactsContainer');
+        if (container.children.length === 1) { // just the hidden spinner
+            container.innerHTML += '<div class="text-muted text-center mt-3">No emergency contacts added yet.</div>';
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadContacts);
   </script>
 </body>
 </html>

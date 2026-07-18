@@ -27,11 +27,11 @@ router.get('/summary', authenticate, requireRole('ADMIN'), async (req, res) => {
     return res.status(200).json({
       success: true,
       summary: {
-        total:     row.TOTAL     || 0,
-        resolved:  row.RESOLVED  || 0,
-        pending:   row.PENDING   || 0,
-        open:      row.OPEN_COUNT || 0,
-        anonymous: row.ANONYMOUS || 0,
+        total_incidents: row.TOTAL      || 0,
+        resolved_count:  row.RESOLVED   || 0,
+        pending_count:   row.PENDING    || 0,
+        open_count:      row.OPEN_COUNT || 0,
+        anonymous_count: row.ANONYMOUS  || 0,
       },
     });
   } catch (err) {
@@ -54,12 +54,12 @@ router.get('/by-category', authenticate, requireRole('ADMIN'), async (req, res) 
       {}
     );
 
-    const data = result.rows.map(row => ({
+    const categories = result.rows.map(row => ({
       category:       row.CATEGORY,
       incident_count: row.INCIDENT_COUNT,
     }));
 
-    return res.status(200).json({ success: true, data });
+    return res.status(200).json({ success: true, categories });
   } catch (err) {
     console.error('GET /analytics/by-category error:', err);
     return res.status(500).json({ success: false, message: 'Server error fetching category analytics.' });
@@ -82,7 +82,7 @@ router.get('/by-zone', authenticate, requireRole('ADMIN'), async (req, res) => {
       {}
     );
 
-    const data = result.rows.map(row => ({
+    const zones = result.rows.map(row => ({
       zone_id:        row.ZONE_ID,
       area_name:      row.AREA_NAME,
       incident_count: row.INCIDENT_COUNT,
@@ -90,7 +90,7 @@ router.get('/by-zone', authenticate, requireRole('ADMIN'), async (req, res) => {
       is_high_risk:   row.IS_HIGH_RISK,
     }));
 
-    return res.status(200).json({ success: true, data });
+    return res.status(200).json({ success: true, zones });
   } catch (err) {
     console.error('GET /analytics/by-zone error:', err);
     return res.status(500).json({ success: false, message: 'Server error fetching zone analytics.' });
@@ -125,7 +125,7 @@ router.get('/trend', authenticate, requireRole('ADMIN'), async (req, res) => {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const key = d.toISOString().split('T')[0];
-      trend.push({ date: key, incident_count: trendMap[key] || 0 });
+      trend.push({ day: key, incident_count: trendMap[key] || 0 });
     }
 
     return res.status(200).json({ success: true, trend });

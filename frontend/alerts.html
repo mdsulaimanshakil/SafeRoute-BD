@@ -4,466 +4,244 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Safety Alerts — SafeRoute BD</title>
-  <meta name="description" content="View live safety alerts and emergency broadcasts for your area on SafeRoute BD." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/contrast.css" />
   <style>
-    :root {
-      --navy:        #0D1B2A;
-      --navy-light:  #1A2D42;
-      --navy-mid:    #152235;
-      --teal:        #1DBF8A;
-      --teal-dark:   #17A87A;
-      --teal-glow:   rgba(29, 191, 138, 0.18);
-      --text-muted:  #8A9BB0;
-      --border:      rgba(29, 191, 138, 0.15);
-    }
-    *, *::before, *::after { box-sizing: border-box; }
+    :root { --navy: #0D1B2A; --navy-light: #1A2D42; --teal: #1DBF8A; --border: rgba(29, 191, 138, 0.15); }
     body { font-family: 'Inter', sans-serif; background: var(--navy); color: #E8EFF8; min-height: 100vh; }
-
-    /* Navbar */
-    .navbar-custom { background: rgba(13,27,42,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1rem 0; }
-    .navbar-brand-text { font-weight: 700; font-size: 1.25rem; background: linear-gradient(135deg,#1DBF8A,#63E6BE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .nav-pill { background: var(--teal-glow); border: 1px solid var(--border); color: var(--teal) !important; border-radius: 50px; padding: 0.35rem 1rem; font-size: 0.85rem; font-weight: 500; transition: all 0.2s; text-decoration: none; }
-    .nav-pill:hover { background: var(--teal); color: #fff !important; transform: translateY(-1px); }
-    .nav-pill-danger { background: rgba(220,53,69,0.12); border: 1px solid rgba(220,53,69,0.35); color: #FF8F96 !important; border-radius: 50px; padding: 0.35rem 1rem; font-size: 0.85rem; font-weight: 600; text-decoration: none; transition: all 0.2s; cursor: pointer; }
-    .nav-pill-danger:hover { background: rgba(220,53,69,0.25); transform: translateY(-1px); }
-
-    /* Hero */
-    .page-hero { background: linear-gradient(135deg,var(--navy-mid) 0%,rgba(220,53,69,0.08) 100%); border-bottom: 1px solid rgba(220,53,69,0.15); padding: 3rem 0 2rem; text-align: center; }
-    .page-hero h1 { font-size: 2rem; font-weight: 700; }
-    .page-hero p { color: var(--text-muted); }
-    .hero-icon { width: 64px; height: 64px; background: linear-gradient(135deg,#FF4D5A,#FF8F96); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.75rem; color: #fff; box-shadow: 0 0 30px rgba(220,53,69,0.4); animation: pulse-hero 2s ease-in-out infinite; }
-    @keyframes pulse-hero { 0%,100%{box-shadow:0 0 30px rgba(220,53,69,0.4)} 50%{box-shadow:0 0 50px rgba(220,53,69,0.7)} }
-
-    /* Alert cards */
-    .alert-card {
-      border-radius: 16px;
-      padding: 1.4rem;
-      margin-bottom: 1rem;
-      transition: all 0.25s;
-      animation: fadeInUp 0.35s ease both;
-      position: relative;
-      overflow: hidden;
-    }
-    .alert-card::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      border-radius: 4px 0 0 4px;
-    }
-    .alert-card:hover { transform: translateY(-2px); }
-    @keyframes fadeInUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-
-    .severity-CRITICAL { background: rgba(220,53,69,0.1);  border: 1px solid rgba(220,53,69,0.3); }
-    .severity-CRITICAL::before { background: #FF4D5A; }
-    .severity-HIGH     { background: rgba(255,140,0,0.1);  border: 1px solid rgba(255,140,0,0.3); }
-    .severity-HIGH::before { background: #FF8C00; }
-    .severity-MEDIUM   { background: rgba(255,193,7,0.1);  border: 1px solid rgba(255,193,7,0.3); }
-    .severity-MEDIUM::before { background: #FFC107; }
-    .severity-LOW      { background: rgba(29,191,138,0.08);border: 1px solid var(--border); }
-    .severity-LOW::before { background: var(--teal); }
-
-    .severity-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-size: 0.72rem;
-      font-weight: 700;
-      border-radius: 6px;
-      padding: 0.3rem 0.65rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-    .sbadge-CRITICAL { background: rgba(220,53,69,0.2);  color: #FF8F96; border: 1px solid rgba(220,53,69,0.4); }
-    .sbadge-HIGH     { background: rgba(255,140,0,0.2);  color: #FFB347; border: 1px solid rgba(255,140,0,0.4); }
-    .sbadge-MEDIUM   { background: rgba(255,193,7,0.2);  color: #FFD700; border: 1px solid rgba(255,193,7,0.4); }
-    .sbadge-LOW      { background: rgba(29,191,138,0.15);color: var(--teal); border: 1px solid var(--border); }
-
-    .alert-message { font-size: 0.95rem; color: #E8EFF8; line-height: 1.6; margin: 0.6rem 0; }
-    .alert-meta { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; font-size: 0.8rem; color: var(--text-muted); }
-    .alert-meta span { display: flex; align-items: center; gap: 0.3rem; }
-
-    /* Severity icon colors */
-    .icon-CRITICAL { color: #FF4D5A; }
-    .icon-HIGH     { color: #FF8C00; }
-    .icon-MEDIUM   { color: #FFC107; }
-    .icon-LOW      { color: var(--teal); }
-
-    /* Modal */
-    .modal-content { background: var(--navy-light); border: 1px solid var(--border); border-radius: 20px; }
+    .navbar-custom { background: rgba(13,27,42,0.95); border-bottom: 1px solid var(--border); padding: 1rem 0; }
+    .navbar-brand-text { font-weight: 700; font-size: 1.25rem; background: linear-gradient(135deg,#1DBF8A,#63E6BE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .alert-card { background: var(--navy-light); border: 1px solid var(--border); border-left: 5px solid; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    
+    .sev-CRITICAL { border-left-color: #dc3545; }
+    .sev-CRITICAL .badge-sev { background: rgba(220,53,69,0.15); color: #dc3545; border: 1px solid rgba(220,53,69,0.3); }
+    
+    .sev-HIGH { border-left-color: #fd7e14; }
+    .sev-HIGH .badge-sev { background: rgba(253,126,20,0.15); color: #fd7e14; border: 1px solid rgba(253,126,20,0.3); }
+    
+    .sev-MEDIUM { border-left-color: #ffc107; }
+    .sev-MEDIUM .badge-sev { background: rgba(255,193,7,0.15); color: #ffc107; border: 1px solid rgba(255,193,7,0.3); }
+    
+    .sev-LOW { border-left-color: #198754; }
+    .sev-LOW .badge-sev { background: rgba(25,135,84,0.15); color: #198754; border: 1px solid rgba(25,135,84,0.3); }
+    
+    .badge-sev { font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 6px; text-transform: uppercase; }
+    
+    /* modal */
+    .modal-content { background: var(--navy); color: #E8EFF8; border: 1px solid var(--border); }
     .modal-header { border-bottom: 1px solid var(--border); }
     .modal-footer { border-top: 1px solid var(--border); }
-    .modal-title { font-weight: 600; }
-    .btn-close-custom { background: rgba(255,255,255,0.1); border: none; color: #fff; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; transition: all 0.2s; font-size: 1rem; }
-    .btn-close-custom:hover { background: rgba(255,255,255,0.2); }
-    .form-label { font-weight: 500; color: #C8D8E8; margin-bottom: 0.4rem; font-size: 0.88rem; }
-    .form-control, .form-select { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: #E8EFF8; border-radius: 12px; padding: 0.7rem 1rem; font-size: 0.95rem; transition: all 0.25s; }
-    .form-control:focus, .form-select:focus { background: rgba(29,191,138,0.06); border-color: var(--teal); color: #E8EFF8; box-shadow: 0 0 0 3px rgba(29,191,138,0.15); }
-    .form-control::placeholder { color: var(--text-muted); }
-    .form-select option { background: var(--navy-light); color: #E8EFF8; }
-    .btn-broadcast { background: linear-gradient(135deg,#FF4D5A,#FF8F96); border: none; color: #fff; font-weight: 600; border-radius: 12px; padding: 0.7rem 1.5rem; transition: all 0.25s; }
-    .btn-broadcast:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(220,53,69,0.4); color: #fff; }
-    .btn-broadcast:disabled { opacity: 0.65; }
-    .btn-spinner { display: none; }
-    .btn-broadcast.loading .btn-text { display: none; }
-    .btn-broadcast.loading .btn-spinner { display: inline-block; }
-
-    /* Empty / error state */
-    .empty-state { text-align: center; padding: 4rem 1rem; color: var(--text-muted); }
-    .empty-state i { font-size: 3rem; margin-bottom: 1rem; display: block; }
-
-    /* Stats */
-    .stats-bar { background: rgba(220,53,69,0.05); border: 1px solid rgba(220,53,69,0.15); border-radius: 14px; padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; gap: 2rem; flex-wrap: wrap; }
-    .stat-item { display: flex; flex-direction: column; }
-    .stat-num { font-size: 1.4rem; font-weight: 700; line-height: 1; }
-    .stat-lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
-
-    /* Alert toasts */
-    .alert-toast { border-radius: 12px; padding: 0.9rem 1.2rem; margin-bottom: 1rem; font-size: 0.9rem; }
-    .alert-success-custom { background: rgba(29,191,138,0.12); border: 1px solid rgba(29,191,138,0.35); color: #63E6BE; }
-    .alert-danger-custom  { background: rgba(220,53,69,0.1);   border: 1px solid rgba(220,53,69,0.3);  color: #FF8F96; }
+    .form-control, .form-select { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; }
+    .form-control:focus, .form-select:focus { background: rgba(255,255,255,0.08); border-color: var(--teal); color: #fff; box-shadow: none; }
+    /* Fix white dropdown options and dark theme readability */
+    option { background-color: var(--navy-light); color: #fff; }
+    textarea.form-control { background-color: var(--navy-light); color: #fff; }
+    .form-label { color: #C8D6E5 !important; }
+    .form-check-label { color: #C8D6E5 !important; }
+    .alert-danger { background: rgba(220,53,69,0.15); color: #ff8a98; border: 1px solid rgba(220,53,69,0.3); }
+    .alert-success { background: rgba(29,191,138,0.15); color: #63E6BE; border: 1px solid rgba(29,191,138,0.3); }
   </style>
 </head>
 <body>
-
-  <!-- Navbar -->
-  <nav class="navbar navbar-custom sticky-top">
-    <div class="container">
+  <nav class="navbar navbar-custom">
+    <div class="container d-flex justify-content-between align-items-center">
       <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
         <i class="bi bi-shield-shaded" style="color:var(--teal);font-size:1.4rem;"></i>
         <span class="navbar-brand-text">SafeRoute BD</span>
       </a>
-      <div class="d-flex gap-2 align-items-center">
-        <a href="community-feed.html" class="nav-pill"><i class="bi bi-people-fill me-1"></i>Community</a>
-        <a href="report-incident.html" class="nav-pill"><i class="bi bi-plus-circle-fill me-1"></i>Report</a>
-        <!-- Admin only button — shown via JS -->
-        <button class="nav-pill-danger" id="sendAlertNavBtn" style="display:none;" onclick="openModal()">
-          <i class="bi bi-megaphone-fill me-1"></i>Broadcast Alert
-        </button>
-        <a href="login.html" class="nav-pill" id="loginNavBtn" style="display:none;"><i class="bi bi-person-fill me-1"></i>Login</a>
-        <a href="#" class="nav-pill" id="logoutNavBtn" style="display:none;" onclick="logout(event)"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
-      </div>
+      <button class="btn btn-outline-light btn-sm" onclick="goBack()"><i class="bi bi-arrow-left"></i> Back</button>
     </div>
   </nav>
 
-  <!-- Hero -->
-  <div class="page-hero">
-    <div class="container">
-      <div class="hero-icon"><i class="bi bi-bell-fill"></i></div>
-      <h1>Safety <span style="color:#FF8F96;">Alerts</span></h1>
-      <p>Live broadcasts from safety officials and administrators in your area</p>
+  <div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h3 class="fw-bold m-0"><i class="bi bi-broadcast text-danger me-2"></i> Safety Alerts</h3>
+        <p class="text-muted small m-0 mt-1">Official broadcast messages from administrators.</p>
+      </div>
+      <button class="btn btn-danger" id="btnAdminSend" data-bs-toggle="modal" data-bs-target="#alertModal" style="display:none;">
+        <i class="bi bi-send-fill me-1"></i> Send Alert
+      </button>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-8" id="alertsContainer">
+        <div id="errorMsg" class="alert alert-danger" style="display:none;"></div>
+        <div class="text-center mt-5" id="loadingAlerts">
+          <div class="spinner-border text-danger" role="status"></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Send Alert Modal (ADMIN only) -->
-  <div class="modal fade" id="sendAlertModal" tabindex="-1" aria-labelledby="sendAlertModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+  <!-- Admin Send Alert Modal -->
+  <div class="modal fade" id="alertModal" tabindex="-1">
+    <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="sendAlertModalLabel"><i class="bi bi-megaphone-fill me-2" style="color:#FF8F96;"></i>Broadcast Safety Alert</h5>
-          <button type="button" class="btn-close-custom" data-bs-dismiss="modal"><i class="bi bi-x"></i></button>
-        </div>
-        <div class="modal-body">
-          <div id="modalAlert" style="display:none;" class="mb-3"></div>
-          <form id="alertForm" novalidate>
+        <form onsubmit="sendAlert(event)">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">Broadcast New Alert</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div id="modalError" class="alert alert-danger" style="display:none;"></div>
             <div class="mb-3">
-              <label for="alertZone" class="form-label">Zone <span style="color:#FF8F96;">*</span></label>
-              <select id="alertZone" class="form-select" required>
-                <option value="">— Loading zones… —</option>
+              <label class="form-label text-muted small fw-bold">Zone</label>
+              <select class="form-select" id="zoneSelect" required>
+                <option value="">Loading zones...</option>
               </select>
             </div>
             <div class="mb-3">
-              <label for="alertSeverity" class="form-label">Severity <span style="color:#FF8F96;">*</span></label>
-              <select id="alertSeverity" class="form-select" required>
-                <option value="">— Select severity —</option>
-                <option value="CRITICAL">🔴 CRITICAL</option>
-                <option value="HIGH">🟠 HIGH</option>
-                <option value="MEDIUM">🟡 MEDIUM</option>
-                <option value="LOW">🟢 LOW</option>
+              <label class="form-label text-muted small fw-bold">Severity</label>
+              <select class="form-select" id="severitySelect" required>
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+                <option value="CRITICAL">Critical</option>
               </select>
             </div>
             <div class="mb-3">
-              <label for="alertMessage" class="form-label">Alert Message <span style="color:#FF8F96;">*</span></label>
-              <textarea id="alertMessage" class="form-control" rows="4" maxlength="500"
-                placeholder="Describe the safety situation and any instructions for residents…" required></textarea>
+              <label class="form-label text-muted small fw-bold">Message</label>
+              <textarea class="form-control" id="messageInput" rows="3" required></textarea>
             </div>
-            <div class="mb-1">
-              <label for="alertReportId" class="form-label">Related Report ID <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
-              <input type="number" id="alertReportId" class="form-control" placeholder="e.g. 42" min="1" />
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn" style="background:rgba(255,255,255,0.06);border:1px solid var(--border);color:#C8D8E8;border-radius:10px;" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-broadcast" id="broadcastBtn" onclick="submitAlert()">
-            <span class="btn-text"><i class="bi bi-megaphone-fill me-2"></i>Broadcast Alert</span>
-            <span class="btn-spinner"><span class="spinner-border spinner-border-sm me-2"></span>Broadcasting…</span>
-          </button>
-        </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger" id="submitAlertBtn">
+              <span class="spinner-border spinner-border-sm me-1" id="alertSpinner" style="display:none;"></span> Broadcast
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
-
-  <!-- Main content -->
-  <div class="container py-4">
-    <div class="row">
-      <div class="col-lg-8 mx-auto">
-
-        <!-- Page toast -->
-        <div id="pageAlert" style="display:none;" class="mb-3"></div>
-
-        <!-- Admin CTA bar -->
-        <div id="adminCTABar" style="display:none;" class="mb-4">
-          <div style="background:rgba(220,53,69,0.08);border:1px solid rgba(220,53,69,0.25);border-radius:14px;padding:1rem 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
-            <i class="bi bi-shield-fill-exclamation" style="font-size:1.5rem;color:#FF8F96;"></i>
-            <div style="flex:1;">
-              <div style="font-weight:600;font-size:0.95rem;">Admin Control Panel</div>
-              <div style="color:var(--text-muted);font-size:0.8rem;">You have authority to broadcast safety alerts to the community.</div>
-            </div>
-            <button class="btn btn-broadcast" onclick="openModal()"><i class="bi bi-megaphone-fill me-2"></i>Send Alert</button>
-          </div>
-        </div>
-
-        <!-- Stats -->
-        <div class="stats-bar">
-          <div class="stat-item"><span class="stat-num" id="totalAlerts" style="color:#FF8F96;">—</span><span class="stat-lbl">Total Alerts</span></div>
-          <div class="stat-item"><span class="stat-num" id="criticalCount" style="color:#FF4D5A;">—</span><span class="stat-lbl">Critical</span></div>
-          <div class="stat-item"><span class="stat-num" id="highCount" style="color:#FF8C00;">—</span><span class="stat-lbl">High</span></div>
-          <div class="stat-item"><span class="stat-num" id="activeZones" style="color:var(--teal);">—</span><span class="stat-lbl">Active Zones</span></div>
-        </div>
-
-        <!-- Alerts list -->
-        <div id="alertsContainer">
-          <!-- Skeleton -->
-          <div style="background:var(--navy-light);border:1px solid var(--border);border-radius:16px;padding:1.4rem;margin-bottom:1rem;">
-            <div style="background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;height:14px;width:25%;margin-bottom:10px;"></div>
-            <div style="background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;height:14px;width:80%;margin-bottom:10px;"></div>
-            <div style="background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;height:14px;width:55%;"></div>
-          </div>
-          <div style="background:var(--navy-light);border:1px solid var(--border);border-radius:16px;padding:1.4rem;margin-bottom:1rem;">
-            <div style="background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;height:14px;width:35%;margin-bottom:10px;"></div>
-            <div style="background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;height:14px;width:70%;margin-bottom:10px;"></div>
-            <div style="background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;height:14px;width:45%;"></div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <style>
-    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-  </style>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const API_BASE = 'http://localhost:3000';
-    const token = localStorage.getItem('token');
-    const userStr = localStorage.getItem('user');
-    let userRole = null;
-    let alertModal = null;
-
-    // Parse user role
-    if (userStr) {
-      try { userRole = JSON.parse(userStr).role; } catch(_) {}
-    }
-    // Fallback: try decode JWT
-    if (!userRole && token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        userRole = payload.role;
-      } catch(_) {}
+    function getUser() {
+      const token = localStorage.getItem('token');
+      if (!token) return null;
+      try { return JSON.parse(atob(token.split('.')[1])); } catch(e) { return null; }
     }
 
-    // Setup nav
-    if (token) {
-      document.getElementById('logoutNavBtn').style.display = 'inline-flex';
-    } else {
-      document.getElementById('loginNavBtn').style.display = 'inline-flex';
-    }
-    if (userRole === 'ADMIN') {
-      document.getElementById('sendAlertNavBtn').style.display = 'inline-flex';
-      document.getElementById('adminCTABar').style.display = 'block';
+    const user = getUser();
+    if (user && user.role === 'ADMIN') {
+      document.getElementById('btnAdminSend').style.display = 'block';
+      loadZones();
     }
 
-    function logout(e) {
-      e.preventDefault();
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = 'login.html';
-    }
-
-    function openModal() {
-      alertModal = alertModal || new bootstrap.Modal(document.getElementById('sendAlertModal'));
-      document.getElementById('alertForm').reset();
-      document.getElementById('modalAlert').style.display = 'none';
-      loadZonesForModal();
-      alertModal.show();
-    }
-
-    async function loadZonesForModal() {
-      try {
-        const res = await fetch(`${API_BASE}/api/zones`);
-        const data = await res.json();
-        if (!data.success) return;
-        const sel = document.getElementById('alertZone');
-        sel.innerHTML = '<option value="">— Select zone —</option>';
-        data.zones.forEach(z => {
-          const opt = document.createElement('option');
-          opt.value = z.ZONE_ID;
-          opt.textContent = z.AREA_NAME;
-          sel.appendChild(opt);
-        });
-      } catch(_) {}
-    }
-
-    function showModalAlert(type, msg) {
-      const box = document.getElementById('modalAlert');
-      box.innerHTML = `<div class="alert-toast ${type === 'success' ? 'alert-success-custom' : 'alert-danger-custom'}">
-        <i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-triangle-fill'} me-2"></i>${msg}
-      </div>`;
-      box.style.display = 'block';
-    }
-
-    function showPageAlert(type, msg) {
-      const box = document.getElementById('pageAlert');
-      box.innerHTML = `<div class="alert-toast ${type === 'success' ? 'alert-success-custom' : 'alert-danger-custom'}">
-        <i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-triangle-fill'} me-2"></i>${msg}
-      </div>`;
-      box.style.display = 'block';
-      setTimeout(() => { box.style.display = 'none'; }, 5000);
-    }
-
-    async function submitAlert() {
-      const zone_id   = parseInt(document.getElementById('alertZone').value);
-      const severity  = document.getElementById('alertSeverity').value;
-      const message   = document.getElementById('alertMessage').value.trim();
-      const reportId  = document.getElementById('alertReportId').value;
-
-      if (!zone_id || !severity || !message) {
-        showModalAlert('danger', 'Zone, severity, and message are required.');
-        return;
+    function goBack() { 
+      if (user) {
+        window.location.href = user.role === 'ADMIN' ? 'admin-dashboard.html' : 'user-dashboard.html';
+      } else {
+        window.location.href = 'index.html';
       }
-
-      const broadcastBtn = document.getElementById('broadcastBtn');
-      broadcastBtn.classList.add('loading');
-      broadcastBtn.disabled = true;
-
-      try {
-        const body = { zone_id, severity, message };
-        if (reportId) body.report_id = parseInt(reportId);
-
-        const res = await fetch(`${API_BASE}/api/alerts`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(body)
-        });
-
-        if (res.status === 401) { window.location.href = 'login.html'; return; }
-        if (res.status === 403) { showModalAlert('danger', 'You do not have admin access.'); return; }
-
-        const data = await res.json();
-        if (!data.success) throw new Error(data.message);
-
-        alertModal.hide();
-        showPageAlert('success', `✅ Alert broadcast successfully! Alert ID: #${data.alert_id}`);
-        loadAlerts();
-      } catch (err) {
-        showModalAlert('danger', err.message || 'Failed to broadcast alert.');
-      } finally {
-        broadcastBtn.classList.remove('loading');
-        broadcastBtn.disabled = false;
-      }
-    }
-
-    function timeAgo(dateStr) {
-      const date = new Date(dateStr);
-      const now = new Date();
-      const diff = Math.floor((now - date) / 1000);
-      if (diff < 60) return 'just now';
-      if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-      if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-      return `${Math.floor(diff / 86400)}d ago`;
-    }
-
-    const severityIcons = { CRITICAL: 'bi-exclamation-octagon-fill', HIGH: 'bi-exclamation-triangle-fill', MEDIUM: 'bi-exclamation-circle-fill', LOW: 'bi-info-circle-fill' };
-
-    function renderAlerts(alerts) {
-      const container = document.getElementById('alertsContainer');
-      const critical  = alerts.filter(a => a.severity === 'CRITICAL').length;
-      const high      = alerts.filter(a => a.severity === 'HIGH').length;
-      const zones     = new Set(alerts.map(a => a.zone_id)).size;
-
-      document.getElementById('totalAlerts').textContent  = alerts.length;
-      document.getElementById('criticalCount').textContent = critical;
-      document.getElementById('highCount').textContent     = high;
-      document.getElementById('activeZones').textContent   = zones;
-
-      if (alerts.length === 0) {
-        container.innerHTML = `<div class="empty-state">
-          <i class="bi bi-bell-slash" style="color:rgba(29,191,138,0.3);"></i>
-          <p>No safety alerts at the moment.</p>
-          <small>Check back later or explore the community feed.</small>
-        </div>`;
-        return;
-      }
-
-      container.innerHTML = alerts.map((alert, idx) => `
-        <div class="alert-card severity-${alert.severity}" style="animation-delay:${idx * 0.05}s">
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:0.5rem;">
-            <span class="severity-badge sbadge-${alert.severity}">
-              <i class="bi ${severityIcons[alert.severity] || 'bi-exclamation'}"></i>
-              ${alert.severity}
-            </span>
-            <span style="font-size:0.78rem;color:var(--text-muted);">#${alert.alert_id}</span>
-          </div>
-          <p class="alert-message"><i class="bi ${severityIcons[alert.severity]} icon-${alert.severity} me-2"></i>${escHtml(alert.message)}</p>
-          <div class="alert-meta">
-            <span><i class="bi bi-geo-alt-fill" style="color:var(--teal);"></i>${escHtml(alert.area_name || 'Unknown Zone')}</span>
-            <span><i class="bi bi-clock"></i>${timeAgo(alert.broadcast)}</span>
-            ${alert.report_id ? `<span><i class="bi bi-link-45deg"></i>Report #${alert.report_id}</span>` : ''}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function escHtml(str) {
-      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
     async function loadAlerts() {
+      document.getElementById('loadingAlerts').style.display = 'block';
+      const container = document.getElementById('alertsContainer');
+      const errBox = document.getElementById('errorMsg');
+      errBox.style.display = 'none';
+
+      // Keep only loading and error
+      Array.from(container.children).forEach(c => {
+        if (c.id !== 'loadingAlerts' && c.id !== 'errorMsg') c.remove();
+      });
+
       try {
-        const res = await fetch(`${API_BASE}/api/alerts`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const res = await fetch('http://localhost:3000/api/alerts');
         const data = await res.json();
-        if (!data.success) throw new Error(data.message);
-        renderAlerts(data.alerts);
+        if (!data.success) throw new Error(data.message || 'Failed to load alerts');
+
+        document.getElementById('loadingAlerts').style.display = 'none';
+        
+        if (data.alerts.length === 0) {
+          container.insertAdjacentHTML('beforeend', '<div class="text-muted text-center mt-3">No active alerts.</div>');
+          return;
+        }
+
+        data.alerts.forEach(a => {
+          const timeStr = new Date(a.broadcast).toLocaleString();
+          container.insertAdjacentHTML('beforeend', `
+            <div class="alert-card sev-${a.severity}">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <span class="badge-sev">${a.severity}</span>
+                <span class="text-muted small">${timeStr}</span>
+              </div>
+              <p class="mb-2" style="font-size: 0.95rem;">${a.message}</p>
+              <div class="text-muted small"><i class="bi bi-geo-alt-fill"></i> ${a.area_name}</div>
+            </div>
+          `);
+        });
       } catch (err) {
-        document.getElementById('alertsContainer').innerHTML = `<div class="empty-state">
-          <i class="bi bi-wifi-off" style="color:rgba(220,53,69,0.4);"></i>
-          <p>Could not load alerts.<br><small>${escHtml(err.message)}</small></p>
-          <button class="btn" style="background:var(--teal);color:#fff;border-radius:10px;margin-top:1rem;" onclick="loadAlerts()">Retry</button>
-        </div>`;
-        document.getElementById('totalAlerts').textContent = '—';
-        document.getElementById('criticalCount').textContent = '—';
-        document.getElementById('highCount').textContent = '—';
-        document.getElementById('activeZones').textContent = '—';
+        document.getElementById('loadingAlerts').style.display = 'none';
+        errBox.textContent = err.message;
+        errBox.style.display = 'block';
       }
     }
 
-    loadAlerts();
-    // Auto-refresh every 60 seconds
-    setInterval(loadAlerts, 60000);
+    async function loadZones() {
+      try {
+        const res = await fetch('http://localhost:3000/api/zones', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const data = await res.json();
+        const select = document.getElementById('zoneSelect');
+        select.innerHTML = '<option value="">Select Zone...</option>';
+        if (data.success) {
+          data.zones.forEach(z => {
+            select.innerHTML += `<option value="${z.zone_id}">${z.area_name}</option>`;
+          });
+        }
+      } catch (e) {
+        console.error('Failed to load zones for modal');
+      }
+    }
+
+    async function sendAlert(e) {
+      e.preventDefault();
+      const errBox = document.getElementById('modalError');
+      errBox.style.display = 'none';
+      document.getElementById('submitAlertBtn').disabled = true;
+      document.getElementById('alertSpinner').style.display = 'inline-block';
+
+      const body = {
+        zone_id: document.getElementById('zoneSelect').value,
+        severity: document.getElementById('severitySelect').value,
+        message: document.getElementById('messageInput').value
+      };
+
+      try {
+        const res = await fetch('http://localhost:3000/api/alerts', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}` 
+          },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'Failed to send alert');
+        
+        // Hide modal
+        bootstrap.Modal.getInstance(document.getElementById('alertModal')).hide();
+        // Reset form
+        e.target.reset();
+        // Reload alerts
+        loadAlerts();
+      } catch (err) {
+        errBox.textContent = err.message;
+        errBox.style.display = 'block';
+      } finally {
+        document.getElementById('submitAlertBtn').disabled = false;
+        document.getElementById('alertSpinner').style.display = 'none';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadAlerts);
   </script>
 </body>
 </html>

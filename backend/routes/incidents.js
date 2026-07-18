@@ -9,25 +9,6 @@ const router = express.Router();
 const VALID_CATEGORIES = ['THEFT', 'HARASSMENT', 'ACCIDENT', 'ROAD_HAZARD', 'SUSPICIOUS', 'WATERLOGGING', 'OTHER'];
 
 // ──────────────────────────────────────────────────────────
-//  GET /api/zones — public, fetch all LOCATION_ZONES
-//  (mounted at /api/zones so path is '/')
-// ──────────────────────────────────────────────────────────
-router.get('/', async (req, res) => {
-  try {
-    const result = await db.execute(
-      `SELECT zone_id, area_name, latitude, longitude, safety_score, is_high_risk
-         FROM LOCATION_ZONES
-        ORDER BY area_name`,
-      {}
-    );
-    return res.status(200).json({ success: true, zones: result.rows });
-  } catch (err) {
-    console.error('GET /zones error:', err);
-    return res.status(500).json({ success: false, message: 'Server error fetching zones.' });
-  }
-});
-
-// ──────────────────────────────────────────────────────────
 //  POST /api/incidents — authenticated, create incident report
 // ──────────────────────────────────────────────────────────
 router.post('/', authenticate, async (req, res) => {
@@ -45,7 +26,8 @@ router.post('/', authenticate, async (req, res) => {
   }
 
   const isAnonymous = is_anon === 1 || is_anon === true || is_anon === '1';
-  const userId = isAnonymous ? null : req.user.user_id;
+  const userId = isAnonymous ? null : parseInt(req.user.user_id, 10);
+  const parsedZoneId = parseInt(zone_id, 10);
 
   try {
     // Oracle BEFORE INSERT trigger assigns report_id from reports_seq automatically
@@ -55,7 +37,7 @@ router.post('/', authenticate, async (req, res) => {
        RETURNING report_id INTO :out_report_id`,
       {
         user_id:      userId,
-        zone_id:      zone_id,
+        zone_id:      parsedZoneId,
         category:     category,
         description:  description,
         is_anon:      isAnonymous ? 1 : 0,
@@ -99,7 +81,7 @@ router.get('/', async (req, res) => {
       created_at:  row.CREATED_AT,
       area_name:   row.AREA_NAME,
       safety_score: row.SAFETY_SCORE,
-      reporter:    row.IS_ANON === 1 ? 'Anonymous User' : (row.FULL_NAME || 'Unknown'),
+      reporter_name: row.IS_ANON === 1 ? 'Anonymous User' : (row.FULL_NAME || 'Unknown'),
     }));
 
     return res.status(200).json({ success: true, incidents });
@@ -135,6 +117,7 @@ router.get('/my', authenticate, async (req, res) => {
       status:      row.STATUS,
       created_at:  row.CREATED_AT,
       area_name:   row.AREA_NAME,
+      reporter_name: row.IS_ANON === 1 ? 'Anonymous User' : 'Unknown',
     }));
 
     return res.status(200).json({ success: true, incidents });
@@ -169,7 +152,7 @@ router.get('/anonymous', async (req, res) => {
       status:      row.STATUS,
       created_at:  row.CREATED_AT,
       area_name:   row.AREA_NAME,
-      reporter:    'Anonymous User',
+      reporter_name: 'Anonymous User',
     }));
 
     return res.status(200).json({ success: true, incidents });

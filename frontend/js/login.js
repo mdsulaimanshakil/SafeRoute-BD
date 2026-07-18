@@ -86,8 +86,8 @@ form.addEventListener('submit', async (e) => {
 
     if (res.ok && data.success) {
       // Store JWT and user info
-      localStorage.setItem('sr_token', data.token);
-      localStorage.setItem('sr_user',  JSON.stringify(data.user));
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user',  JSON.stringify(data.user));
 
       showAlert('success', `Welcome back, ${data.user.full_name}! Redirecting…`);
 

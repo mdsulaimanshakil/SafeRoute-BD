@@ -6,6 +6,7 @@
   <meta name="description" content="SafeRoute BD Admin Dashboard — Manage incidents, users, and community safety alerts." />
   <title>Admin Dashboard — SafeRoute BD</title>
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/contrast.css" />
   <style>
     .admin-welcome {
       background: linear-gradient(135deg, rgba(245,158,11,0.10), rgba(245,158,11,0.03));
@@ -174,16 +175,16 @@
       <!-- Admin Quick Actions / Sidebar Nav -->
       <p class="section-title">Admin Actions</p>
       <div class="admin-actions">
-        <button class="admin-action-card" id="btnManageUsers" onclick="comingSoon()">
+        <button class="admin-action-card" id="btnManageUsers" onclick="window.location.href = 'admin-panel.html';">
           <span class="action-icon">👥</span> Manage Users
         </button>
-        <button class="admin-action-card" id="btnAllIncidents" onclick="comingSoon()">
+        <button class="admin-action-card" id="btnAllIncidents" onclick="window.location.href = 'community-feed.html';">
           <span class="action-icon">📋</span> View All Incidents
         </button>
-        <button class="admin-action-card" id="btnAnalytics" onclick="comingSoon()">
+        <button class="admin-action-card" id="btnAnalytics" onclick="window.location.href = 'analytics.html';">
           <span class="action-icon">📊</span> Analytics
         </button>
-        <button class="admin-action-card" id="btnSendAlert" onclick="comingSoon()">
+        <button class="admin-action-card" id="btnSendAlert" onclick="window.location.href = 'alerts.html';">
           <span class="action-icon">📢</span> Send Alert
         </button>
       </div>
@@ -251,11 +252,24 @@
       ids.forEach(id => document.getElementById(id)?.classList.remove('skeleton'));
     }
 
+    // ── Decode token securely ────────────────────────────────
+    function getUser() {
+        const token = localStorage.getItem('token');
+        if (!token) return null;
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload;
+        } catch(e) {
+            return null;
+        }
+    }
+
     // ── On page load: fetch /api/dashboard/admin ─────────────
     (async function init() {
-      const token = localStorage.getItem('sr_token');
+      const user = getUser();
+      const token = localStorage.getItem('token');
 
-      if (!token) {
+      if (!user || !token) {
         window.location.href = 'login.html';
         return;
       }
@@ -323,8 +337,7 @@
     })();
 
     function logout() {
-      localStorage.removeItem('sr_token');
-      localStorage.removeItem('sr_user');
+      localStorage.removeItem('token');
       window.location.href = 'login.html';
     }
 

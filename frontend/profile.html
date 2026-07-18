@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile — SafeRoute BD</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/contrast.css" />
+  <style>
+    :root {
+      --navy: #0D1B2A; --navy-light: #1A2D42; --teal: #1DBF8A; --border: rgba(29, 191, 138, 0.15);
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--navy); color: #E8EFF8; min-height: 100vh; }
+    .navbar-custom { background: rgba(13,27,42,0.95); border-bottom: 1px solid var(--border); padding: 1rem 0; }
+    .navbar-brand-text { font-weight: 700; font-size: 1.25rem; background: linear-gradient(135deg,#1DBF8A,#63E6BE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .card-custom { background: var(--navy-light); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .avatar-lg { width: 80px; height: 80px; background: linear-gradient(135deg, var(--teal), #108a61); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; color: var(--navy); margin: 0 auto 1rem; }
+    .info-label { font-size: 0.8rem; color: #8A9BB0; text-transform: uppercase; font-weight: 600; margin-bottom: 0.2rem; }
+    .info-val { font-size: 1rem; font-weight: 500; margin-bottom: 1rem; padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid var(--border); }
+    .badge-role { background: rgba(29,191,138,0.15); color: var(--teal); border: 1px solid var(--border); padding: 0.35rem 1rem; border-radius: 50px; font-weight: 600; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-custom">
+    <div class="container d-flex justify-content-between align-items-center">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <i class="bi bi-shield-shaded" style="color:var(--teal);font-size:1.4rem;"></i>
+        <span class="navbar-brand-text">SafeRoute BD</span>
+      </a>
+      <button class="btn btn-outline-light btn-sm" onclick="goBack()"><i class="bi bi-arrow-left"></i> Back</button>
+    </div>
+  </nav>
+
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-5">
+        <div class="card-custom text-center" id="profileCard" style="display:none;">
+          <div class="avatar-lg" id="profileInitials"></div>
+          <h3 id="profileName" class="mb-2"></h3>
+          <div class="mb-4"><span class="badge-role" id="profileRole"></span></div>
+          
+          <div class="text-start">
+            <div class="info-label">Email Address</div>
+            <div class="info-val" id="profileEmail"></div>
+            
+            <div class="info-label">Phone Number</div>
+            <div class="info-val" id="profilePhone"></div>
+          </div>
+        </div>
+        
+        <div id="loadingMsg" class="text-center mt-5">
+          <div class="spinner-border text-success" role="status"></div>
+          <p class="mt-2 text-muted">Loading profile...</p>
+        </div>
+        <div id="errorMsg" class="alert alert-danger mt-4" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function getUser() {
+      const token = localStorage.getItem('token');
+      if (!token) return null;
+      try { return JSON.parse(atob(token.split('.')[1])); } catch(e) { return null; }
+    }
+
+    const user = getUser();
+    if (!user) window.location.href = 'login.html';
+
+    function goBack() { window.location.href = 'user-dashboard.html'; }
+
+    async function loadProfile() {
+      try {
+        const res = await fetch('http://localhost:3000/api/dashboard/user', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'Failed to load profile');
+        
+        document.getElementById('loadingMsg').style.display = 'none';
+        document.getElementById('profileCard').style.display = 'block';
+        
+        document.getElementById('profileInitials').textContent = data.full_name.charAt(0).toUpperCase();
+        document.getElementById('profileName').textContent = data.full_name;
+        document.getElementById('profileRole').textContent = data.role.replace('_', ' ');
+        document.getElementById('profileEmail').textContent = data.email;
+        document.getElementById('profilePhone').textContent = data.phone || 'N/A';
+      } catch (err) {
+        document.getElementById('loadingMsg').style.display = 'none';
+        document.getElementById('errorMsg').textContent = err.message;
+        document.getElementById('errorMsg').style.display = 'block';
+      }
+    }
+    document.addEventListener('DOMContentLoaded', loadProfile);
+  </script>
+</body>
+</html>

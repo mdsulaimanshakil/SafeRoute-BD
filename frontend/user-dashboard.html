@@ -6,6 +6,7 @@
   <meta name="description" content="SafeRoute BD Public User Dashboard — Report and track incidents in your community." />
   <title>Dashboard — SafeRoute BD</title>
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/contrast.css" />
   <style>
     .welcome-banner {
       background: linear-gradient(135deg, rgba(29,191,138,0.12), rgba(29,191,138,0.04));
@@ -163,19 +164,19 @@
       <!-- Quick Actions -->
       <p class="section-title">Quick Actions</p>
       <div class="quick-actions">
-        <button class="action-btn" id="btnReportIncident" onclick="comingSoon()">
+        <button class="action-btn" id="btnReportIncident" onclick="window.location.href = 'report-incident.html';">
           <span class="action-icon">📍</span>
           Report Incident
         </button>
-        <button class="action-btn" id="btnMyReports" onclick="comingSoon()">
+        <button class="action-btn" id="btnMyReports" onclick="window.location.href = 'community-feed.html';">
           <span class="action-icon">📋</span>
           View My Reports
         </button>
-        <button class="action-btn" id="btnEmergency" onclick="comingSoon()">
+        <button class="action-btn" id="btnEmergency" onclick="window.location.href = 'emergency-contacts.html';">
           <span class="action-icon">🚨</span>
           Emergency Contacts
         </button>
-        <button class="action-btn" id="btnProfile" onclick="comingSoon()">
+        <button class="action-btn" id="btnProfile" onclick="window.location.href = 'profile.html';">
           <span class="action-icon">👤</span>
           My Profile
         </button>
@@ -224,11 +225,24 @@
       ids.forEach(id => document.getElementById(id)?.classList.remove('skeleton'));
     }
 
+    // ── Decode token securely ────────────────────────────────
+    function getUser() {
+        const token = localStorage.getItem('token');
+        if (!token) return null;
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload;
+        } catch(e) {
+            return null;
+        }
+    }
+
     // ── On page load: fetch /api/dashboard/user ──────────────
     (async function init() {
-      const token = localStorage.getItem('sr_token');
+      const user = getUser();
+      const token = localStorage.getItem('token');
 
-      if (!token) {
+      if (!user || !token) {
         window.location.href = 'login.html';
         return;
       }
@@ -291,8 +305,7 @@
     })();
 
     function logout() {
-      localStorage.removeItem('sr_token');
-      localStorage.removeItem('sr_user');
+      localStorage.removeItem('token');
       window.location.href = 'login.html';
     }
 

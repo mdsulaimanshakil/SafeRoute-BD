@@ -11,6 +11,7 @@ const dashboardRoutes  = require('./routes/dashboard');
 const incidentRoutes   = require('./routes/incidents');
 const emergencyRoutes  = require('./routes/emergency');
 const alertRoutes      = require('./routes/alerts');
+const zonesRoutes      = require('./routes/zones');
 const safetyRoutes     = require('./routes/safety');
 const searchRoutes     = require('./routes/search');
 const analyticsRoutes  = require('./routes/analytics');
@@ -57,7 +58,7 @@ const authLimiter = rateLimit({
 app.use('/api/auth',      authLimiter, authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/incidents', incidentRoutes);
-app.use('/api/zones',     incidentRoutes);
+app.use('/api/zones',     zonesRoutes);
 app.use('/api/emergency', emergencyRoutes);
 app.use('/api/alerts',    alertRoutes);
 app.use('/api/safety',    safetyRoutes);

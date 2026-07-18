@@ -3,320 +3,202 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Analytics Dashboard — SafeRoute BD</title>
-  <meta name="description" content="Admin analytics dashboard for SafeRoute BD — view incident trends, category breakdowns, and zone risk analysis." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <title>Analytics — SafeRoute BD</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/contrast.css" />
   <style>
-    :root {
-      --navy:        #0D1B2A;
-      --navy-light:  #1A2D42;
-      --navy-mid:    #152235;
-      --teal:        #1DBF8A;
-      --teal-glow:   rgba(29, 191, 138, 0.18);
-      --text-muted:  #8A9BB0;
-      --border:      rgba(29, 191, 138, 0.15);
-    }
-    *, *::before, *::after { box-sizing: border-box; }
+    :root { --navy: #0D1B2A; --navy-light: #1A2D42; --teal: #1DBF8A; --border: rgba(29, 191, 138, 0.15); }
     body { font-family: 'Inter', sans-serif; background: var(--navy); color: #E8EFF8; min-height: 100vh; }
-
-    /* Navbar */
-    .navbar-custom { background: rgba(13,27,42,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1rem 0; }
-    .navbar-brand-text { font-weight: 700; font-size: 1.25rem; background: linear-gradient(135deg,#1DBF8A,#63E6BE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .nav-pill { background: var(--teal-glow); border: 1px solid var(--border); color: var(--teal) !important; border-radius: 50px; padding: 0.35rem 1rem; font-size: 0.85rem; font-weight: 500; transition: all 0.2s; text-decoration: none; }
-    .nav-pill:hover { background: var(--teal); color: #fff !important; transform: translateY(-1px); }
-
-    /* Hero */
-    .page-hero { background: linear-gradient(135deg,var(--navy-mid) 0%,rgba(29,191,138,0.08) 100%); border-bottom: 1px solid var(--border); padding: 2.5rem 0 2rem; }
-    .page-hero h1 { font-size: 1.85rem; font-weight: 700; }
-    .page-hero p { color: var(--text-muted); margin: 0; }
-    .admin-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(29,191,138,0.12); border: 1px solid var(--border); color: var(--teal); border-radius: 50px; padding: 0.25rem 0.85rem; font-size: 0.78rem; font-weight: 700; }
-
-    /* KPI cards */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-    .kpi-card { background: var(--navy-light); border: 1px solid var(--border); border-radius: 16px; padding: 1.4rem; display: flex; flex-direction: column; gap: 0.4rem; position: relative; overflow: hidden; transition: all 0.25s; }
-    .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 10px 35px rgba(0,0,0,0.25); }
-    .kpi-card::after { content: ''; position: absolute; bottom: -20px; right: -20px; width: 80px; height: 80px; border-radius: 50%; opacity: 0.06; }
-    .kpi-card.total { border-top: 3px solid var(--teal); } .kpi-card.total::after { background: var(--teal); }
-    .kpi-card.resolved { border-top: 3px solid #1DBF8A; } .kpi-card.resolved::after { background: #1DBF8A; }
-    .kpi-card.pending  { border-top: 3px solid #FFC107; } .kpi-card.pending::after { background: #FFC107; }
-    .kpi-card.open     { border-top: 3px solid #0D6EFD; } .kpi-card.open::after { background: #0D6EFD; }
-    .kpi-card.anon     { border-top: 3px solid #6C757D; } .kpi-card.anon::after { background: #6C757D; }
-    .kpi-label { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
-    .kpi-value { font-size: 2.5rem; font-weight: 800; line-height: 1; }
-    .kpi-card.total    .kpi-value { color: var(--teal); }
-    .kpi-card.resolved .kpi-value { color: #63E6BE; }
-    .kpi-card.pending  .kpi-value { color: #FFD700; }
-    .kpi-card.open     .kpi-value { color: #74B9FF; }
-    .kpi-card.anon     .kpi-value { color: #ADB5BD; }
-    .kpi-icon { font-size: 1.5rem; position: absolute; top: 1.2rem; right: 1.2rem; opacity: 0.25; }
-
-    /* Chart cards */
-    .chart-card { background: var(--navy-light); border: 1px solid var(--border); border-radius: 18px; padding: 1.75rem; margin-bottom: 1.5rem; }
-    .chart-title { font-size: 1rem; font-weight: 600; color: #E8EFF8; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
-    .chart-title i { color: var(--teal); font-size: 1.1rem; }
-    .chart-container { position: relative; }
-
-    /* Loading spinner */
-    .spinner-teal { width: 40px; height: 40px; border: 3px solid rgba(29,191,138,0.2); border-top-color: var(--teal); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 2rem auto; }
-    @keyframes spin { to{transform:rotate(360deg)} }
-
-    /* Error state */
-    .error-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
-    .error-state i { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; color: rgba(220,53,69,0.5); }
-
-    /* Last refreshed */
-    .last-refresh { font-size: 0.78rem; color: var(--text-muted); text-align: right; margin-bottom: 1.5rem; }
-    .refresh-btn { background: none; border: 1px solid var(--border); color: var(--teal); border-radius: 8px; padding: 0.3rem 0.8rem; font-size: 0.78rem; cursor: pointer; transition: all 0.2s; }
-    .refresh-btn:hover { background: var(--teal-glow); }
+    .navbar-custom { background: rgba(13,27,42,0.95); border-bottom: 1px solid var(--border); padding: 1rem 0; }
+    .navbar-brand-text { font-weight: 700; font-size: 1.25rem; background: linear-gradient(135deg,#1DBF8A,#63E6BE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .card-custom { background: var(--navy-light); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .stat-val { font-size: 2rem; font-weight: 700; color: #fff; line-height: 1; margin-bottom: 0.5rem; }
+    .stat-label { font-size: 0.85rem; color: #D7E3EE; text-transform: uppercase; font-weight: 600; }
+    canvas { max-width: 100%; height: auto; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-
-  <!-- Navbar -->
-  <nav class="navbar navbar-custom sticky-top">
-    <div class="container">
+  <nav class="navbar navbar-custom">
+    <div class="container d-flex justify-content-between align-items-center">
       <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
         <i class="bi bi-shield-shaded" style="color:var(--teal);font-size:1.4rem;"></i>
         <span class="navbar-brand-text">SafeRoute BD</span>
       </a>
-      <div class="d-flex gap-2 align-items-center">
-        <a href="admin-dashboard.html" class="nav-pill"><i class="bi bi-speedometer2 me-1"></i>Admin Panel</a>
-        <a href="alerts.html" class="nav-pill"><i class="bi bi-bell-fill me-1"></i>Alerts</a>
-        <a href="#" class="nav-pill" onclick="logout(event)"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
-      </div>
+      <button class="btn btn-outline-light btn-sm" onclick="goBack()"><i class="bi bi-arrow-left"></i> Back</button>
     </div>
   </nav>
 
-  <!-- Hero -->
-  <div class="page-hero">
-    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
-      <div>
-        <span class="admin-badge mb-2"><i class="bi bi-shield-fill-check me-1"></i>ADMIN ONLY</span>
-        <h1 class="mt-1">Analytics <span style="color:var(--teal)">Dashboard</span></h1>
-        <p>Live insights into community safety incidents and trends</p>
-      </div>
-      <div class="text-end">
-        <button class="refresh-btn" onclick="loadAll()"><i class="bi bi-arrow-clockwise me-1"></i>Refresh Data</button>
-        <div class="last-refresh mt-1" id="lastRefresh">Never refreshed</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main content -->
-  <div class="container py-4" id="mainContent">
-    <!-- KPI Cards -->
-    <div class="kpi-grid" id="kpiGrid">
-      <div class="kpi-card total"><i class="bi bi-collection-fill kpi-icon"></i><div class="kpi-label">Total Incidents</div><div class="kpi-value" id="kpi-total">—</div></div>
-      <div class="kpi-card resolved"><i class="bi bi-check-circle-fill kpi-icon"></i><div class="kpi-label">Resolved</div><div class="kpi-value" id="kpi-resolved">—</div></div>
-      <div class="kpi-card pending"><i class="bi bi-hourglass-split kpi-icon"></i><div class="kpi-label">Pending</div><div class="kpi-value" id="kpi-pending">—</div></div>
-      <div class="kpi-card open"><i class="bi bi-folder2-open kpi-icon"></i><div class="kpi-label">Open</div><div class="kpi-value" id="kpi-open">—</div></div>
-      <div class="kpi-card anon"><i class="bi bi-incognito kpi-icon"></i><div class="kpi-label">Anonymous</div><div class="kpi-value" id="kpi-anon">—</div></div>
+  <div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="fw-bold m-0"><i class="bi bi-bar-chart-fill text-info me-2"></i> Analytics Dashboard</h3>
     </div>
 
-    <!-- Trend line chart (full width) -->
-    <div class="chart-card">
-      <div class="chart-title"><i class="bi bi-graph-up-arrow"></i>7-Day Incident Trend</div>
-      <div class="chart-container" style="height:240px;">
-        <canvas id="trendChart"></canvas>
-      </div>
+    <div id="errorMsg" class="alert alert-danger" style="display:none;"></div>
+    
+    <div class="text-center mt-5" id="loadingData">
+      <div class="spinner-border text-info" role="status"></div>
+      <p class="mt-2 text-muted">Gathering intelligence...</p>
     </div>
 
-    <!-- Category bar + Zone pie (side by side) -->
-    <div class="row g-4">
-      <div class="col-lg-7">
-        <div class="chart-card" style="margin-bottom:0;">
-          <div class="chart-title"><i class="bi bi-bar-chart-fill"></i>Incidents by Category</div>
-          <div class="chart-container" style="height:280px;">
-            <canvas id="categoryChart"></canvas>
+    <div id="dashboardContent" style="display:none;">
+      <!-- Summary Cards -->
+      <div class="row mb-4">
+        <div class="col-6 col-md-3">
+          <div class="card-custom text-center">
+            <div class="stat-val" id="statTotal">0</div>
+            <div class="stat-label">Total Reports</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card-custom text-center">
+            <div class="stat-val text-success" id="statResolved">0</div>
+            <div class="stat-label">Resolved</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card-custom text-center">
+            <div class="stat-val text-warning" id="statPending">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card-custom text-center">
+            <div class="stat-val text-danger" id="statOpen">0</div>
+            <div class="stat-label">Open</div>
           </div>
         </div>
       </div>
-      <div class="col-lg-5">
-        <div class="chart-card" style="margin-bottom:0;">
-          <div class="chart-title"><i class="bi bi-pie-chart-fill"></i>Incidents by Zone</div>
-          <div class="chart-container" style="height:280px;">
-            <canvas id="zoneChart"></canvas>
+
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="card-custom">
+            <h6 class="text-muted text-uppercase mb-3 fw-bold">7-Day Incident Trend</h6>
+            <canvas id="trendChart" height="100"></canvas>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="card-custom">
+            <h6 class="text-muted text-uppercase mb-3 fw-bold">By Zone</h6>
+            <canvas id="zoneChart" height="220"></canvas>
           </div>
         </div>
       </div>
+      
+      <div class="row mt-2">
+        <div class="col-12">
+          <div class="card-custom">
+            <h6 class="text-muted text-uppercase mb-3 fw-bold">By Category</h6>
+            <canvas id="categoryChart" height="80"></canvas>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script>
-    const API_BASE = 'http://localhost:3000';
-    const token = localStorage.getItem('token');
-
-    // ── ADMIN guard ──
-    let userRole = null;
-    if (!token) { window.location.href = 'login.html'; }
-    else {
-      try { userRole = JSON.parse(atob(token.split('.')[1])).role; } catch(_) {}
-      if (userRole !== 'ADMIN') { window.location.href = 'user-dashboard.html'; }
+    function getUser() {
+      const token = localStorage.getItem('token');
+      if (!token) return null;
+      try { return JSON.parse(atob(token.split('.')[1])); } catch(e) { return null; }
     }
 
-    function logout(e) {
-      e.preventDefault();
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = 'login.html';
-    }
+    const user = getUser();
+    if (!user) window.location.href = 'login.html';
+    else if (user.role !== 'ADMIN') window.location.href = 'user-dashboard.html';
 
-    // ── Chart.js default styling ──
-    Chart.defaults.color = '#8A9BB0';
-    Chart.defaults.font.family = "'Inter', sans-serif";
-    Chart.defaults.font.size = 12;
+    function goBack() { window.location.href = 'admin-dashboard.html'; }
 
-    const chartBorderColor = 'rgba(29,191,138,0.15)';
+    // Setup global defaults for charts
+    Chart.defaults.color = '#D7E3EE';
+    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.10)';
 
-    // Color palettes
-    const catColors = [
-      'rgba(220,53,69,0.8)', 'rgba(255,82,82,0.8)', 'rgba(255,140,0,0.8)',
-      'rgba(255,193,7,0.8)', 'rgba(108,117,125,0.8)', 'rgba(13,110,253,0.8)', 'rgba(29,191,138,0.8)'
-    ];
-    const zoneColors = [
-      'rgba(29,191,138,0.85)', 'rgba(99,230,190,0.85)', 'rgba(13,110,253,0.85)',
-      'rgba(255,193,7,0.85)',  'rgba(220,53,69,0.85)',  'rgba(255,140,0,0.85)',
-      'rgba(108,117,125,0.85)','rgba(156,39,176,0.85)',
-    ];
-
-    let trendChartInst, categoryChartInst, zoneChartInst;
-
-    async function authFetch(url) {
-      const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
-      if (res.status === 401) { window.location.href = 'login.html'; throw new Error('Unauthorized'); }
-      if (res.status === 403) { window.location.href = 'user-dashboard.html'; throw new Error('Forbidden'); }
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message || 'API error');
-      return data;
-    }
-
-    async function loadSummary() {
-      const data = await authFetch(`${API_BASE}/api/analytics/summary`);
-      document.getElementById('kpi-total').textContent    = data.summary.total;
-      document.getElementById('kpi-resolved').textContent = data.summary.resolved;
-      document.getElementById('kpi-pending').textContent  = data.summary.pending;
-      document.getElementById('kpi-open').textContent     = data.summary.open;
-      document.getElementById('kpi-anon').textContent     = data.summary.anonymous;
-    }
-
-    async function loadTrend() {
-      const data = await authFetch(`${API_BASE}/api/analytics/trend`);
-      const labels = data.trend.map(t => {
-        const d = new Date(t.date);
-        return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-      });
-      const values = data.trend.map(t => t.incident_count);
-
-      if (trendChartInst) trendChartInst.destroy();
-      trendChartInst = new Chart(document.getElementById('trendChart'), {
-        type: 'line',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Incidents',
-            data: values,
-            borderColor: '#1DBF8A',
-            backgroundColor: 'rgba(29,191,138,0.12)',
-            borderWidth: 2.5,
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: '#1DBF8A',
-            pointBorderColor: '#0D1B2A',
-            pointRadius: 5,
-            pointHoverRadius: 7,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1A2D42', borderColor: '#1DBF8A', borderWidth: 1, padding: 10 } },
-          scales: {
-            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8A9BB0' } },
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8A9BB0', stepSize: 1, precision: 0 }, beginAtZero: true },
-          }
-        }
-      });
-    }
-
-    async function loadCategoryChart() {
-      const data = await authFetch(`${API_BASE}/api/analytics/by-category`);
-      const labels = data.data.map(d => d.category.replace('_', ' '));
-      const values = data.data.map(d => d.incident_count);
-
-      if (categoryChartInst) categoryChartInst.destroy();
-      categoryChartInst = new Chart(document.getElementById('categoryChart'), {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Incidents',
-            data: values,
-            backgroundColor: catColors.slice(0, labels.length),
-            borderColor: catColors.map(c => c.replace('0.8','1')).slice(0, labels.length),
-            borderWidth: 1.5,
-            borderRadius: 8,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          indexAxis: 'y',
-          plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1A2D42', borderColor: chartBorderColor, borderWidth: 1, padding: 10 } },
-          scales: {
-            x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8A9BB0', stepSize: 1, precision: 0 }, beginAtZero: true },
-            y: { grid: { display: false }, ticks: { color: '#C8D8E8', font: { weight: '500' } } },
-          }
-        }
-      });
-    }
-
-    async function loadZoneChart() {
-      const data = await authFetch(`${API_BASE}/api/analytics/by-zone`);
-      const labels = data.data.map(d => d.area_name);
-      const values = data.data.map(d => d.incident_count);
-
-      if (zoneChartInst) zoneChartInst.destroy();
-      zoneChartInst = new Chart(document.getElementById('zoneChart'), {
-        type: 'doughnut',
-        data: {
-          labels,
-          datasets: [{
-            data: values,
-            backgroundColor: zoneColors.slice(0, labels.length),
-            borderColor: '#0D1B2A',
-            borderWidth: 3,
-            hoverOffset: 8,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '60%',
-          plugins: {
-            legend: { position: 'bottom', labels: { color: '#8A9BB0', padding: 12, font: { size: 11 } } },
-            tooltip: { backgroundColor: '#1A2D42', borderColor: chartBorderColor, borderWidth: 1, padding: 10 }
-          }
-        }
-      });
-    }
-
-    async function loadAll() {
+    async function fetchAnalytics() {
       try {
-        await Promise.all([loadSummary(), loadTrend(), loadCategoryChart(), loadZoneChart()]);
-        document.getElementById('lastRefresh').textContent =
-          `Last refreshed: ${new Date().toLocaleTimeString()}`;
+        const headers = { 'Authorization': `Bearer ${localStorage.getItem('token')}` };
+        
+        const [sumRes, catRes, zoneRes, trendRes] = await Promise.all([
+          fetch('http://localhost:3000/api/analytics/summary', { headers }),
+          fetch('http://localhost:3000/api/analytics/by-category', { headers }),
+          fetch('http://localhost:3000/api/analytics/by-zone', { headers }),
+          fetch('http://localhost:3000/api/analytics/trend', { headers })
+        ]);
+
+        if (!sumRes.ok || !catRes.ok || !zoneRes.ok || !trendRes.ok) 
+          throw new Error('Failed to fetch analytics data');
+
+        const [sumData, catData, zoneData, trendData] = await Promise.all([
+          sumRes.json(), catRes.json(), zoneRes.json(), trendRes.json()
+        ]);
+
+        document.getElementById('loadingData').style.display = 'none';
+        document.getElementById('dashboardContent').style.display = 'block';
+
+        // Summary
+        const s = sumData.summary;
+        document.getElementById('statTotal').textContent = s.total_incidents || 0;
+        document.getElementById('statResolved').textContent = s.resolved_count || 0;
+        document.getElementById('statPending').textContent = s.pending_count || 0;
+        document.getElementById('statOpen').textContent = s.open_count || 0;
+
+        // Trend Line Chart
+        new Chart(document.getElementById('trendChart'), {
+          type: 'line',
+          data: {
+            labels: trendData.trend.map(d => new Date(d.day).toLocaleDateString('en-US', {month:'short', day:'numeric'})),
+            datasets: [{
+              label: 'Incidents',
+              data: trendData.trend.map(d => d.incident_count),
+              borderColor: '#1DBF8A',
+              backgroundColor: 'rgba(29, 191, 138, 0.1)',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.3
+            }]
+          },
+          options: { plugins: { legend: { display: false } } }
+        });
+
+        // Category Bar Chart
+        new Chart(document.getElementById('categoryChart'), {
+          type: 'bar',
+          data: {
+            labels: catData.categories.map(d => d.category),
+            datasets: [{
+              label: 'Incidents',
+              data: catData.categories.map(d => d.incident_count),
+              backgroundColor: '#F59E0B',
+              borderRadius: 4
+            }]
+          },
+          options: { plugins: { legend: { display: false } } }
+        });
+
+        // Zone Pie Chart
+        new Chart(document.getElementById('zoneChart'), {
+          type: 'doughnut',
+          data: {
+            labels: zoneData.zones.map(d => d.area_name),
+            datasets: [{
+              data: zoneData.zones.map(d => d.incident_count),
+              backgroundColor: ['#1DBF8A', '#FF8F96', '#6EA8FE', '#F59E0B', '#C8D8E8'],
+              borderWidth: 0
+            }]
+          },
+          options: { cutout: '70%', plugins: { legend: { position: 'bottom' } } }
+        });
+
       } catch (err) {
-        console.error('Analytics load error:', err);
+        document.getElementById('loadingData').style.display = 'none';
+        document.getElementById('errorMsg').textContent = err.message;
+        document.getElementById('errorMsg').style.display = 'block';
       }
     }
 
-    loadAll();
+    document.addEventListener('DOMContentLoaded', fetchAnalytics);
   </script>
 </body>
 </html>

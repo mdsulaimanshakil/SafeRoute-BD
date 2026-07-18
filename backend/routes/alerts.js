@@ -58,13 +58,16 @@ router.post('/', authenticate, requireRole('ADMIN'), async (req, res) => {
 
   try {
     // Oracle BEFORE INSERT trigger assigns alert_id from alerts_seq automatically
+    const parsedZoneId = parseInt(zone_id, 10);
+    const parsedReportId = report_id ? parseInt(report_id, 10) : null;
+
     const result = await db.execute(
       `INSERT INTO SAFETY_ALERTS (zone_id, report_id, message, severity, broadcast)
        VALUES (:zone_id, :report_id, :message, :severity, SYSDATE)
        RETURNING alert_id INTO :out_alert_id`,
       {
-        zone_id:     zone_id,
-        report_id:   report_id || null,
+        zone_id:     parsedZoneId,
+        report_id:   parsedReportId,
         message:     message,
         severity:    severity,
         out_alert_id: { dir: require('oracledb').BIND_OUT, type: require('oracledb').NUMBER },

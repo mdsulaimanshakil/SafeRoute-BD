@@ -75,29 +75,46 @@ END;
 
 -- ────────────────────────────────────────────
 --  4. TRIGGER: trg_update_safety_after_incident
+--     Uses a compound trigger so the recalculation
+--     runs after the insert statement completes.
 -- ────────────────────────────────────────────
 CREATE OR REPLACE TRIGGER trg_update_safety_after_incident
-  AFTER INSERT ON INCIDENT_REPORTS
-  FOR EACH ROW
-DECLARE
-  v_incident_count NUMBER;
-  v_new_score NUMBER;
-  v_high_risk NUMBER(1);
-BEGIN
-  -- Re-calculate for the newly affected zone
-  SELECT COUNT(*) INTO v_incident_count FROM INCIDENT_REPORTS WHERE zone_id = :NEW.zone_id;
-  
-  v_new_score := GREATEST(0, 100 - (v_incident_count * 10));
-  IF v_new_score < 40 THEN
-    v_high_risk := 1;
-  ELSE
-    v_high_risk := 0;
-  END IF;
-  
-  UPDATE LOCATION_ZONES 
-     SET safety_score = v_new_score, is_high_risk = v_high_risk
-   WHERE zone_id = :NEW.zone_id;
-END;
+  FOR INSERT ON INCIDENT_REPORTS
+COMPOUND TRIGGER
+  TYPE zone_id_tab IS TABLE OF INCIDENT_REPORTS.zone_id%TYPE INDEX BY PLS_INTEGER;
+  g_zone_ids zone_id_tab;
+  g_count    PLS_INTEGER := 0;
+
+  AFTER EACH ROW IS
+  BEGIN
+    g_count := g_count + 1;
+    g_zone_ids(g_count) := :NEW.zone_id;
+  END AFTER EACH ROW;
+
+  AFTER STATEMENT IS
+    v_incident_count NUMBER;
+    v_new_score      NUMBER;
+    v_high_risk      NUMBER(1);
+  BEGIN
+    FOR i IN 1 .. g_count LOOP
+      SELECT COUNT(*) INTO v_incident_count
+        FROM INCIDENT_REPORTS
+       WHERE zone_id = g_zone_ids(i);
+
+      v_new_score := GREATEST(0, 100 - (v_incident_count * 10));
+      IF v_new_score < 40 THEN
+        v_high_risk := 1;
+      ELSE
+        v_high_risk := 0;
+      END IF;
+
+      UPDATE LOCATION_ZONES
+         SET safety_score = v_new_score,
+             is_high_risk = v_high_risk
+       WHERE zone_id = g_zone_ids(i);
+    END LOOP;
+  END AFTER STATEMENT;
+END trg_update_safety_after_incident;
 /
 
 
