@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Safety Scores — SafeRoute BD</title>
+  <meta name="description" content="View safety scores for all zones in Bangladesh and identify high-risk areas on SafeRoute BD." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <style>
+    :root {
+      --navy:        #0D1B2A;
+      --navy-light:  #1A2D42;
+      --navy-mid:    #152235;
+      --teal:        #1DBF8A;
+      --teal-glow:   rgba(29, 191, 138, 0.18);
+      --text-muted:  #8A9BB0;
+      --border:      rgba(29, 191, 138, 0.15);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--navy); color: #E8EFF8; min-height: 100vh; }
+
+    /* Navbar */
+    .navbar-custom { background: rgba(13,27,42,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1rem 0; }
+    .navbar-brand-text { font-weight: 700; font-size: 1.25rem; background: linear-gradient(135deg,#1DBF8A,#63E6BE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-pill { background: var(--teal-glow); border: 1px solid var(--border); color: var(--teal) !important; border-radius: 50px; padding: 0.35rem 1rem; font-size: 0.85rem; font-weight: 500; transition: all 0.2s; text-decoration: none; }
+    .nav-pill:hover { background: var(--teal); color: #fff !important; transform: translateY(-1px); }
+
+    /* Hero */
+    .page-hero { background: linear-gradient(135deg,var(--navy-mid) 0%,rgba(29,191,138,0.08) 100%); border-bottom: 1px solid var(--border); padding: 3rem 0 2rem; text-align: center; }
+    .page-hero h1 { font-size: 2rem; font-weight: 700; }
+    .page-hero p { color: var(--text-muted); }
+    .hero-icon { width: 64px; height: 64px; background: linear-gradient(135deg,var(--teal),#63E6BE); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.75rem; color: var(--navy); box-shadow: 0 0 30px rgba(29,191,138,0.4); }
+
+    /* Sort controls */
+    .controls-bar { background: var(--navy-light); border-bottom: 1px solid var(--border); padding: 1rem 0; position: sticky; top: 0; z-index: 100; }
+    .sort-btn { background: rgba(255,255,255,0.04); border: 1.5px solid var(--border); color: #C8D8E8; border-radius: 50px; padding: 0.4rem 1.1rem; font-size: 0.83rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .sort-btn:hover, .sort-btn.active { background: var(--teal-glow); border-color: var(--teal); color: var(--teal); }
+
+    /* Stats banner */
+    .stats-banner { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.75rem; }
+    .stat-card { background: var(--navy-light); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem 1.4rem; flex: 1; min-width: 130px; }
+    .stat-card .num { font-size: 1.8rem; font-weight: 700; line-height: 1; }
+    .stat-card .lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+    /* Table */
+    .zone-table { width: 100%; border-collapse: separate; border-spacing: 0 0.6rem; }
+    .zone-row {
+      background: var(--navy-light);
+      border-radius: 14px;
+      transition: all 0.2s;
+      animation: fadeInUp 0.3s ease both;
+    }
+    .zone-row:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.2); }
+    @keyframes fadeInUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .zone-row td { padding: 1rem 1.25rem; vertical-align: middle; border: none; }
+    .zone-row td:first-child { border-radius: 14px 0 0 14px; border-left: 3px solid transparent; }
+    .zone-row td:last-child { border-radius: 0 14px 14px 0; }
+    .zone-row.risk-high td:first-child { border-left-color: #FF4D5A; }
+    .zone-row.risk-med td:first-child  { border-left-color: #FF8C00; }
+    .zone-row.risk-safe td:first-child { border-left-color: #1DBF8A; }
+
+    .zone-name { font-weight: 600; font-size: 0.95rem; }
+
+    /* Score bar */
+    .score-bar-wrap { background: rgba(255,255,255,0.06); border-radius: 8px; height: 10px; position: relative; overflow: hidden; }
+    .score-bar { height: 100%; border-radius: 8px; transition: width 0.6s ease; }
+    .score-text { font-size: 0.82rem; color: #C8D8E8; margin-top: 0.3rem; font-weight: 600; }
+
+    /* Badges */
+    .badge-high-risk { background: rgba(220,53,69,0.15); border: 1px solid rgba(220,53,69,0.35); color: #FF8F96; border-radius: 8px; padding: 0.25rem 0.65rem; font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
+    .badge-safe      { background: rgba(29,191,138,0.1);  border: 1px solid var(--border); color: var(--teal); border-radius: 8px; padding: 0.25rem 0.65rem; font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
+
+    /* Recalculate button */
+    .btn-recalc { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #C8D8E8; border-radius: 8px; padding: 0.35rem 0.85rem; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .btn-recalc:hover { background: var(--teal-glow); border-color: var(--teal); color: var(--teal); }
+    .btn-recalc:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Empty / error */
+    .empty-state { text-align: center; padding: 4rem 1rem; color: var(--text-muted); }
+    .empty-state i { font-size: 3rem; display: block; margin-bottom: 1rem; color: rgba(29,191,138,0.3); }
+
+    /* Toast notification */
+    .toast-container-custom { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
+    .toast-item { background: var(--navy-light); border: 1px solid var(--border); border-radius: 12px; padding: 0.8rem 1.2rem; font-size: 0.85rem; max-width: 320px; animation: slideInRight 0.3s ease; }
+    .toast-item.success { border-color: rgba(29,191,138,0.4); color: #63E6BE; }
+    .toast-item.error   { border-color: rgba(220,53,69,0.4); color: #FF8F96; }
+    @keyframes slideInRight { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-custom sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <i class="bi bi-shield-shaded" style="color:var(--teal);font-size:1.4rem;"></i>
+        <span class="navbar-brand-text">SafeRoute BD</span>
+      </a>
+      <div class="d-flex gap-2 align-items-center">
+        <a href="danger-map.html" class="nav-pill"><i class="bi bi-map-fill me-1"></i>Danger Map</a>
+        <a href="community-feed.html" class="nav-pill"><i class="bi bi-people-fill me-1"></i>Community</a>
+        <a href="alerts.html" class="nav-pill"><i class="bi bi-bell-fill me-1"></i>Alerts</a>
+        <a href="user-dashboard.html" class="nav-pill" id="dashLink" style="display:none;"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+        <a href="login.html" class="nav-pill" id="loginLink"><i class="bi bi-person-fill me-1"></i>Login</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="page-hero">
+    <div class="container">
+      <div class="hero-icon"><i class="bi bi-bar-chart-fill"></i></div>
+      <h1>Safety <span style="color:var(--teal)">Scores</span></h1>
+      <p>Real-time zone-by-zone safety assessment across your community</p>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls-bar">
+    <div class="container d-flex gap-2 align-items-center flex-wrap">
+      <span style="font-size:0.82rem;color:var(--text-muted);margin-right:0.5rem;">Sort:</span>
+      <button class="sort-btn active" id="sort-danger" onclick="setSortOrder('danger', this)"><i class="bi bi-sort-down me-1"></i>Most Dangerous</button>
+      <button class="sort-btn" id="sort-safe" onclick="setSortOrder('safe', this)"><i class="bi bi-sort-up me-1"></i>Safest First</button>
+      <a href="danger-map.html" class="nav-pill ms-auto" style="background:rgba(220,53,69,0.1);border-color:rgba(220,53,69,0.3);color:#FF8F96!important;"><i class="bi bi-map-fill me-1"></i>View on Map</a>
+    </div>
+  </div>
+
+  <div class="container py-4">
+
+    <!-- Stats banner -->
+    <div class="stats-banner">
+      <div class="stat-card"><div class="num" id="st-total" style="color:var(--teal);">—</div><div class="lbl">Total Zones</div></div>
+      <div class="stat-card"><div class="num" id="st-high" style="color:#FF8F96;">—</div><div class="lbl">High Risk Zones</div></div>
+      <div class="stat-card"><div class="num" id="st-avg" style="color:#FFB347;">—</div><div class="lbl">Avg Safety Score</div></div>
+    </div>
+
+    <!-- Table -->
+    <div id="tableContainer">
+      <!-- Skeleton rows -->
+      <table class="zone-table">
+        <tbody id="tableBody">
+          <tr class="zone-row"><td colspan="5"><div style="height:14px;background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;width:80%;"></div></td></tr>
+          <tr class="zone-row"><td colspan="5"><div style="height:14px;background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;width:60%;"></div></td></tr>
+          <tr class="zone-row"><td colspan="5"><div style="height:14px;background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px;width:70%;"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container-custom" id="toastContainer"></div>
+
+  <style>@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }</style>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const API_BASE = 'http://localhost:3000';
+    const token = localStorage.getItem('token');
+    let userRole = null;
+    let allZones = [];
+    let currentSort = 'danger';
+
+    // Auth / role detection
+    if (token) {
+      document.getElementById('dashLink').style.display = 'inline-flex';
+      document.getElementById('loginLink').style.display = 'none';
+      try { userRole = JSON.parse(atob(token.split('.')[1])).role; } catch(_) {}
+    }
+
+    function showToast(type, msg) {
+      const c = document.getElementById('toastContainer');
+      const div = document.createElement('div');
+      div.className = `toast-item ${type}`;
+      div.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-triangle-fill'} me-2"></i>${msg}`;
+      c.appendChild(div);
+      setTimeout(() => { div.style.opacity = '0'; div.style.transition = 'opacity 0.3s'; setTimeout(() => div.remove(), 350); }, 4000);
+    }
+
+    function getBarColor(score, isHighRisk) {
+      if (isHighRisk === 1 || score < 40)  return 'linear-gradient(90deg, #FF4D5A, #FF8F96)';
+      if (score < 70)                       return 'linear-gradient(90deg, #FF8C00, #FFB347)';
+      return 'linear-gradient(90deg, #1DBF8A, #63E6BE)';
+    }
+
+    function getScoreColor(score, isHighRisk) {
+      if (isHighRisk === 1 || score < 40) return '#FF8F96';
+      if (score < 70) return '#FFB347';
+      return '#1DBF8A';
+    }
+
+    function getRiskClass(score, isHighRisk) {
+      if (isHighRisk === 1) return 'risk-high';
+      if (score < 60) return 'risk-med';
+      return 'risk-safe';
+    }
+
+    function renderTable(zones) {
+      const tbody = document.getElementById('tableBody');
+      if (zones.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="bi bi-inbox"></i><p>No zones found.</p></div></td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = zones.map((z, idx) => {
+        const score = Number(z.safety_score || 0);
+        const riskClass = getRiskClass(score, z.is_high_risk);
+        const barColor  = getBarColor(score, z.is_high_risk);
+        const scoreColor= getScoreColor(score, z.is_high_risk);
+        const badge     = z.is_high_risk === 1
+          ? '<span class="badge-high-risk"><i class="bi bi-exclamation-triangle-fill me-1"></i>HIGH RISK</span>'
+          : '<span class="badge-safe"><i class="bi bi-check-circle-fill me-1"></i>SAFE</span>';
+
+        const recalcBtn = userRole === 'ADMIN'
+          ? `<td><button class="btn-recalc" id="recalc-${z.zone_id}" onclick="recalculate(${z.zone_id}, this)"><i class="bi bi-arrow-clockwise me-1"></i>Recalculate</button></td>`
+          : '<td></td>';
+
+        return `
+          <tr class="zone-row ${riskClass}" style="animation-delay:${idx * 0.04}s">
+            <td>
+              <div class="zone-name">${escHtml(z.area_name)}</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-top:3px;">Zone #${z.zone_id}</div>
+            </td>
+            <td style="min-width:180px;">
+              <div class="score-bar-wrap">
+                <div class="score-bar" style="width:${score}%;background:${barColor};"></div>
+              </div>
+              <div class="score-text" style="color:${scoreColor};">${score.toFixed(1)} / 100</div>
+            </td>
+            <td>${badge}</td>
+            <td style="font-size:0.82rem;color:var(--text-muted);">
+              <i class="bi bi-geo-alt" style="color:var(--teal);"></i>
+              ${z.latitude ? z.latitude.toFixed(4) : '—'}, ${z.longitude ? z.longitude.toFixed(4) : '—'}
+            </td>
+            ${recalcBtn}
+          </tr>`;
+      }).join('');
+    }
+
+    function setSortOrder(order, btn) {
+      currentSort = order;
+      document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const sorted = [...allZones].sort((a, b) =>
+        order === 'danger'
+          ? (a.safety_score || 0) - (b.safety_score || 0)
+          : (b.safety_score || 0) - (a.safety_score || 0)
+      );
+      renderTable(sorted);
+    }
+
+    async function recalculate(zoneId, btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>…';
+      try {
+        const res = await fetch(`${API_BASE}/api/safety/calculate/${zoneId}`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        if (res.status === 401) { window.location.href = 'login.html'; return; }
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+
+        showToast('success', `${data.area_name}: New score ${data.new_score} (${data.is_high_risk ? '⚠ HIGH RISK' : '✓ Normal'})`);
+
+        // Update zone in local data
+        const idx = allZones.findIndex(z => z.zone_id === zoneId);
+        if (idx !== -1) {
+          allZones[idx].safety_score = data.new_score;
+          allZones[idx].is_high_risk = data.is_high_risk;
+        }
+        updateStats();
+        const sorted = [...allZones].sort((a, b) =>
+          currentSort === 'danger'
+            ? (a.safety_score || 0) - (b.safety_score || 0)
+            : (b.safety_score || 0) - (a.safety_score || 0)
+        );
+        renderTable(sorted);
+      } catch (err) {
+        showToast('error', err.message || 'Recalculation failed.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>Recalculate';
+      }
+    }
+
+    function updateStats() {
+      const highCount = allZones.filter(z => z.is_high_risk === 1).length;
+      const avg = allZones.length > 0
+        ? (allZones.reduce((s, z) => s + (z.safety_score || 0), 0) / allZones.length).toFixed(1)
+        : '—';
+      document.getElementById('st-total').textContent = allZones.length;
+      document.getElementById('st-high').textContent  = highCount;
+      document.getElementById('st-avg').textContent   = avg;
+    }
+
+    function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    async function loadScores() {
+      try {
+        const res = await fetch(`${API_BASE}/api/safety/scores`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+        allZones = data.zones;
+        updateStats();
+        renderTable(allZones); // already ordered by safety_score ASC = most dangerous first
+      } catch (err) {
+        document.getElementById('tableBody').innerHTML = `
+          <tr><td colspan="5"><div class="empty-state">
+            <i class="bi bi-wifi-off"></i>
+            <p>Failed to load safety scores.<br><small>${escHtml(err.message)}</small></p>
+            <button onclick="loadScores()" style="background:var(--teal);border:none;color:#fff;border-radius:10px;padding:0.5rem 1.25rem;margin-top:0.75rem;cursor:pointer;">Retry</button>
+          </div></td></tr>`;
+      }
+    }
+
+    loadScores();
+  </script>
+</body>
+</html>

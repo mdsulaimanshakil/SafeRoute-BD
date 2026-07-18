@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Search Incidents — SafeRoute BD</title>
+  <meta name="description" content="Search and filter community-reported safety incidents across Bangladesh on SafeRoute BD." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <style>
+    :root {
+      --navy:        #0D1B2A;
+      --navy-light:  #1A2D42;
+      --navy-mid:    #152235;
+      --teal:        #1DBF8A;
+      --teal-glow:   rgba(29, 191, 138, 0.18);
+      --text-muted:  #8A9BB0;
+      --border:      rgba(29, 191, 138, 0.15);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--navy); color: #E8EFF8; min-height: 100vh; }
+
+    /* Navbar */
+    .navbar-custom { background: rgba(13,27,42,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1rem 0; }
+    .navbar-brand-text { font-weight: 700; font-size: 1.25rem; background: linear-gradient(135deg,#1DBF8A,#63E6BE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-pill { background: var(--teal-glow); border: 1px solid var(--border); color: var(--teal) !important; border-radius: 50px; padding: 0.35rem 1rem; font-size: 0.85rem; font-weight: 500; transition: all 0.2s; text-decoration: none; }
+    .nav-pill:hover { background: var(--teal); color: #fff !important; transform: translateY(-1px); }
+
+    /* Hero / Search bar */
+    .search-hero {
+      background: linear-gradient(135deg,var(--navy-mid) 0%,rgba(29,191,138,0.08) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 2.5rem 0;
+    }
+    .search-hero h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 1.25rem; }
+    .search-input-wrap { position: relative; }
+    .search-input-wrap .bi-search { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.1rem; pointer-events: none; }
+    #keywordInput {
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid var(--border);
+      color: #E8EFF8;
+      border-radius: 14px;
+      padding: 0.9rem 1rem 0.9rem 2.8rem;
+      font-size: 1rem;
+      width: 100%;
+      transition: all 0.25s;
+    }
+    #keywordInput:focus { outline: none; border-color: var(--teal); background: rgba(29,191,138,0.06); box-shadow: 0 0 0 3px rgba(29,191,138,0.12); }
+    #keywordInput::placeholder { color: var(--text-muted); }
+    .btn-search { background: linear-gradient(135deg,var(--teal),#1aa876); border: none; color: #fff; font-weight: 600; border-radius: 14px; padding: 0.9rem 1.8rem; cursor: pointer; transition: all 0.25s; white-space: nowrap; }
+    .btn-search:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(29,191,138,0.4); }
+
+    /* Sidebar */
+    .filter-card { background: var(--navy-light); border: 1px solid var(--border); border-radius: 16px; padding: 1.4rem; }
+    .filter-title { font-size: 0.78rem; font-weight: 700; color: var(--teal); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.75rem; }
+
+    /* Checkboxes / radios */
+    .filter-check { display: flex; align-items: center; gap: 0.6rem; padding: 0.35rem 0; font-size: 0.87rem; color: #C8D8E8; cursor: pointer; }
+    .filter-check input { width: 16px; height: 16px; accent-color: var(--teal); cursor: pointer; }
+
+    /* Form controls */
+    .form-select { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: #E8EFF8; border-radius: 10px; padding: 0.6rem 0.9rem; font-size: 0.88rem; transition: all 0.2s; }
+    .form-select:focus { background: rgba(29,191,138,0.06); border-color: var(--teal); color: #E8EFF8; box-shadow: 0 0 0 3px rgba(29,191,138,0.12); outline: none; }
+    .form-select option { background: var(--navy-light); color: #E8EFF8; }
+
+    /* Results meta */
+    .results-meta { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+    .results-count { color: var(--teal); font-weight: 600; }
+
+    /* Incident card */
+    .incident-card { background: var(--navy-light); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 0.75rem; transition: all 0.22s; animation: fadeInUp 0.3s ease both; }
+    .incident-card:hover { transform: translateY(-2px); border-color: rgba(29,191,138,0.35); box-shadow: 0 6px 24px rgba(0,0,0,0.2); }
+    @keyframes fadeInUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+    .cat-badge { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.73rem; font-weight: 700; border-radius: 6px; padding: 0.28rem 0.6rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .badge-THEFT       { background: rgba(220,53,69,0.15);  color: #FF8F96; border: 1px solid rgba(220,53,69,0.3); }
+    .badge-HARASSMENT  { background: rgba(255,82,82,0.12);  color: #FF9999; border: 1px solid rgba(255,82,82,0.3); }
+    .badge-ACCIDENT    { background: rgba(255,140,0,0.12);  color: #FFB347; border: 1px solid rgba(255,140,0,0.3); }
+    .badge-ROAD_HAZARD { background: rgba(255,193,7,0.12);  color: #FFD700; border: 1px solid rgba(255,193,7,0.3); }
+    .badge-SUSPICIOUS  { background: rgba(108,117,125,0.15);color: #ADB5BD; border: 1px solid rgba(108,117,125,0.3); }
+    .badge-WATERLOGGING{ background: rgba(13,110,253,0.12); color: #74B9FF; border: 1px solid rgba(13,110,253,0.3); }
+    .badge-OTHER       { background: rgba(29,191,138,0.12); color: var(--teal); border: 1px solid var(--border); }
+
+    .status-PENDING  { background: rgba(255,193,7,0.1);  color: #FFD700; border: 1px solid rgba(255,193,7,0.3);  border-radius: 6px; padding: 2px 8px; font-size: 0.7rem; font-weight: 700; }
+    .status-OPEN     { background: rgba(13,110,253,0.1); color: #74B9FF; border: 1px solid rgba(13,110,253,0.3); border-radius: 6px; padding: 2px 8px; font-size: 0.7rem; font-weight: 700; }
+    .status-RESOLVED { background: rgba(29,191,138,0.1); color: var(--teal); border: 1px solid var(--border);    border-radius: 6px; padding: 2px 8px; font-size: 0.7rem; font-weight: 700; }
+
+    .inc-desc { font-size: 0.88rem; color: #C8D8E8; line-height: 1.55; margin: 0.55rem 0; }
+    .inc-meta { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; font-size: 0.78rem; color: var(--text-muted); }
+    .inc-meta span { display: flex; align-items: center; gap: 0.3rem; }
+
+    /* Pagination */
+    .pagination-bar { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-top: 2rem; flex-wrap: wrap; }
+    .page-btn { background: var(--navy-light); border: 1px solid var(--border); color: #C8D8E8; border-radius: 10px; padding: 0.5rem 1.2rem; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+    .page-btn:hover:not(:disabled) { border-color: var(--teal); color: var(--teal); }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .page-info { font-size: 0.82rem; color: var(--text-muted); }
+
+    /* Empty / loading */
+    .empty-state { text-align: center; padding: 3.5rem 1rem; color: var(--text-muted); }
+    .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; color: rgba(29,191,138,0.3); }
+    .skeleton { background: linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; height: 13px; margin-bottom: 8px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-custom sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <i class="bi bi-shield-shaded" style="color:var(--teal);font-size:1.4rem;"></i>
+        <span class="navbar-brand-text">SafeRoute BD</span>
+      </a>
+      <div class="d-flex gap-2 align-items-center">
+        <a href="community-feed.html" class="nav-pill"><i class="bi bi-people-fill me-1"></i>Community</a>
+        <a href="report-incident.html" class="nav-pill"><i class="bi bi-plus-circle-fill me-1"></i>Report</a>
+        <a href="alerts.html" class="nav-pill"><i class="bi bi-bell-fill me-1"></i>Alerts</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Search hero -->
+  <div class="search-hero">
+    <div class="container">
+      <h1><i class="bi bi-search me-2" style="color:var(--teal);"></i>Search <span style="color:var(--teal);">Incidents</span></h1>
+      <div class="d-flex gap-2">
+        <div class="search-input-wrap flex-grow-1">
+          <i class="bi bi-search"></i>
+          <input type="text" id="keywordInput" placeholder="Search by description keyword…" />
+        </div>
+        <button class="btn-search" onclick="doSearch(1)"><i class="bi bi-search me-1"></i>Search</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main layout -->
+  <div class="container py-4">
+    <div class="row g-4">
+
+      <!-- Filter sidebar -->
+      <div class="col-lg-3 col-md-4">
+        <div class="filter-card mb-3">
+          <div class="filter-title"><i class="bi bi-funnel-fill me-1"></i>Category</div>
+          <label class="filter-check"><input type="checkbox" class="cat-check" value="THEFT" /> Theft</label>
+          <label class="filter-check"><input type="checkbox" class="cat-check" value="HARASSMENT" /> Harassment</label>
+          <label class="filter-check"><input type="checkbox" class="cat-check" value="ACCIDENT" /> Accident</label>
+          <label class="filter-check"><input type="checkbox" class="cat-check" value="ROAD_HAZARD" /> Road Hazard</label>
+          <label class="filter-check"><input type="checkbox" class="cat-check" value="SUSPICIOUS" /> Suspicious</label>
+          <label class="filter-check"><input type="checkbox" class="cat-check" value="WATERLOGGING" /> Waterlogging</label>
+          <label class="filter-check"><input type="checkbox" class="cat-check" value="OTHER" /> Other</label>
+        </div>
+
+        <div class="filter-card mb-3">
+          <div class="filter-title"><i class="bi bi-geo-alt-fill me-1"></i>Zone</div>
+          <select id="zoneFilter" class="form-select">
+            <option value="">All Zones</option>
+          </select>
+        </div>
+
+        <div class="filter-card mb-3">
+          <div class="filter-title"><i class="bi bi-check2-circle me-1"></i>Status</div>
+          <label class="filter-check"><input type="radio" name="statusFilter" value="" checked /> All</label>
+          <label class="filter-check"><input type="radio" name="statusFilter" value="PENDING" /> Pending</label>
+          <label class="filter-check"><input type="radio" name="statusFilter" value="OPEN" /> Open</label>
+          <label class="filter-check"><input type="radio" name="statusFilter" value="RESOLVED" /> Resolved</label>
+        </div>
+
+        <div class="filter-card">
+          <div class="filter-title"><i class="bi bi-sort-down me-1"></i>Sort By</div>
+          <select id="sortFilter" class="form-select">
+            <option value="latest">Latest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="upvotes">Most Upvoted</option>
+          </select>
+        </div>
+
+        <button class="btn-search w-100 mt-3" onclick="doSearch(1)" style="border-radius:12px;padding:0.75rem;">
+          <i class="bi bi-funnel-fill me-2"></i>Apply Filters
+        </button>
+        <button onclick="resetFilters()" class="w-100 mt-2" style="background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--text-muted);border-radius:12px;padding:0.6rem;cursor:pointer;font-size:0.85rem;">
+          <i class="bi bi-x-circle me-1"></i>Reset Filters
+        </button>
+      </div>
+
+      <!-- Results -->
+      <div class="col-lg-9 col-md-8">
+        <div class="results-meta" id="resultsMeta" style="display:none;">
+          <div>Showing <span class="results-count" id="showingText">—</span> results</div>
+          <div id="pageInfo" class="page-info"></div>
+        </div>
+
+        <div id="resultsContainer">
+          <div class="empty-state">
+            <i class="bi bi-search"></i>
+            <p>Enter a keyword or apply filters to search incidents.</p>
+          </div>
+        </div>
+
+        <div id="paginationBar" class="pagination-bar" style="display:none;">
+          <button class="page-btn" id="prevBtn" onclick="prevPage()" disabled><i class="bi bi-chevron-left me-1"></i>Previous</button>
+          <span class="page-info" id="pageCounter">Page 1 of 1</span>
+          <button class="page-btn" id="nextBtn" onclick="nextPage()" disabled>Next <i class="bi bi-chevron-right ms-1"></i></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const API_BASE = 'http://localhost:3000';
+    let currentPage = 1;
+    let totalPages  = 1;
+
+    const catIcons = {
+      THEFT:'bi-bag-dash-fill', HARASSMENT:'bi-person-x-fill', ACCIDENT:'bi-car-front-fill',
+      ROAD_HAZARD:'bi-cone-striped', SUSPICIOUS:'bi-eye-fill', WATERLOGGING:'bi-water', OTHER:'bi-three-dots'
+    };
+
+    // Load zones for dropdown
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/zones`);
+        const data = await res.json();
+        if (data.success) {
+          const sel = document.getElementById('zoneFilter');
+          data.zones.forEach(z => {
+            const o = document.createElement('option');
+            o.value = z.ZONE_ID;
+            o.textContent = z.AREA_NAME;
+            sel.appendChild(o);
+          });
+        }
+      } catch(_) {}
+    })();
+
+    // Enter key triggers search
+    document.getElementById('keywordInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doSearch(1);
+    });
+
+    function getCheckedCategories() {
+      return [...document.querySelectorAll('.cat-check:checked')].map(c => c.value);
+    }
+
+    function getStatus() {
+      const r = document.querySelector('input[name="statusFilter"]:checked');
+      return r ? r.value : '';
+    }
+
+    function timeAgo(dateStr) {
+      const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+      if (diff < 60) return 'just now';
+      if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+      if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+      return `${Math.floor(diff/86400)}d ago`;
+    }
+
+    function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    function showSkeleton() {
+      document.getElementById('resultsContainer').innerHTML = [1,2,3].map(() => `
+        <div style="background:var(--navy-light);border:1px solid var(--border);border-radius:14px;padding:1.25rem;margin-bottom:0.75rem;">
+          <div class="skeleton" style="width:20%;"></div>
+          <div class="skeleton" style="width:85%;"></div>
+          <div class="skeleton" style="width:60%;"></div>
+        </div>`).join('');
+    }
+
+    async function doSearch(page) {
+      currentPage = page || 1;
+      const keyword    = document.getElementById('keywordInput').value.trim();
+      const zone_id    = document.getElementById('zoneFilter').value;
+      const status     = getStatus();
+      const sort       = document.getElementById('sortFilter').value;
+      const categories = getCheckedCategories();
+
+      const params = new URLSearchParams();
+      if (keyword)  params.set('keyword', keyword);
+      if (zone_id)  params.set('zone_id', zone_id);
+      if (status)   params.set('status', status);
+      if (sort)     params.set('sort', sort);
+      if (categories.length === 1) params.set('category', categories[0]);
+      params.set('page', currentPage);
+      params.set('limit', 10);
+
+      showSkeleton();
+      document.getElementById('resultsMeta').style.display = 'none';
+      document.getElementById('paginationBar').style.display = 'none';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/search/incidents?${params.toString()}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+
+        totalPages = data.total_pages || 1;
+
+        document.getElementById('resultsMeta').style.display = 'flex';
+        document.getElementById('showingText').textContent = `${data.results.length} of ${data.total_count}`;
+        document.getElementById('pageInfo').textContent = `Page ${data.page} of ${totalPages}`;
+        document.getElementById('pageCounter').textContent = `Page ${data.page} of ${totalPages}`;
+
+        if (data.results.length === 0) {
+          document.getElementById('resultsContainer').innerHTML = `
+            <div class="empty-state">
+              <i class="bi bi-inbox"></i>
+              <p>No incidents match your search criteria.<br><small>Try adjusting your filters or keyword.</small></p>
+            </div>`;
+          document.getElementById('paginationBar').style.display = 'none';
+          return;
+        }
+
+        document.getElementById('resultsContainer').innerHTML = data.results.map((inc, idx) => `
+          <div class="incident-card" style="animation-delay:${idx*0.03}s">
+            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;flex-wrap:wrap;">
+              <span class="cat-badge badge-${inc.category}">
+                <i class="bi ${catIcons[inc.category]||'bi-exclamation'}"></i>${inc.category.replace('_',' ')}
+              </span>
+              <span class="status-${inc.status}">${inc.status}</span>
+              <span style="font-size:0.75rem;color:var(--text-muted);margin-left:auto;">#${inc.report_id}</span>
+            </div>
+            <p class="inc-desc">${escHtml(inc.description.length > 150 ? inc.description.slice(0,150)+'…' : inc.description)}</p>
+            <div class="inc-meta">
+              <span><i class="bi bi-geo-alt-fill" style="color:var(--teal);"></i>${escHtml(inc.area_name||'—')}</span>
+              <span><i class="bi bi-person-circle"></i>${escHtml(inc.reporter)}</span>
+              <span><i class="bi bi-clock"></i>${timeAgo(inc.created_at)}</span>
+              <span><i class="bi bi-hand-thumbs-up-fill"></i>${inc.upvotes||0}</span>
+            </div>
+          </div>`).join('');
+
+        // Pagination
+        document.getElementById('paginationBar').style.display = 'flex';
+        document.getElementById('prevBtn').disabled = currentPage <= 1;
+        document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+      } catch(err) {
+        document.getElementById('resultsContainer').innerHTML = `
+          <div class="empty-state">
+            <i class="bi bi-wifi-off"></i>
+            <p>Search failed: ${escHtml(err.message)}</p>
+            <button onclick="doSearch(1)" style="background:var(--teal);border:none;color:#fff;border-radius:10px;padding:0.5rem 1.2rem;margin-top:0.75rem;cursor:pointer;">Retry</button>
+          </div>`;
+      }
+    }
+
+    function prevPage() { if (currentPage > 1) doSearch(currentPage - 1); }
+    function nextPage() { if (currentPage < totalPages) doSearch(currentPage + 1); }
+
+    function resetFilters() {
+      document.getElementById('keywordInput').value = '';
+      document.getElementById('zoneFilter').value = '';
+      document.getElementById('sortFilter').value = 'latest';
+      document.querySelectorAll('.cat-check').forEach(c => c.checked = false);
+      document.querySelector('input[name="statusFilter"][value=""]').checked = true;
+      document.getElementById('resultsContainer').innerHTML = `
+        <div class="empty-state">
+          <i class="bi bi-search"></i>
+          <p>Enter a keyword or apply filters to search incidents.</p>
+        </div>`;
+      document.getElementById('resultsMeta').style.display = 'none';
+      document.getElementById('paginationBar').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

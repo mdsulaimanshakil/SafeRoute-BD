@@ -11,6 +11,9 @@ const dashboardRoutes  = require('./routes/dashboard');
 const incidentRoutes   = require('./routes/incidents');
 const emergencyRoutes  = require('./routes/emergency');
 const alertRoutes      = require('./routes/alerts');
+const safetyRoutes     = require('./routes/safety');
+const searchRoutes     = require('./routes/search');
+const analyticsRoutes  = require('./routes/analytics');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -55,6 +58,9 @@ app.use('/api/incidents', incidentRoutes);
 app.use('/api/zones',     incidentRoutes);
 app.use('/api/emergency', emergencyRoutes);
 app.use('/api/alerts',    alertRoutes);
+app.use('/api/safety',    safetyRoutes);
+app.use('/api/search',    searchRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

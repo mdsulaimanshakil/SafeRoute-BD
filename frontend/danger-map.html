@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Danger Map — SafeRoute BD</title>
+  <meta name="description" content="Interactive danger map showing real-time safety scores and high-risk zones across Bangladesh on SafeRoute BD." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <style>
+    :root {
+      --navy:        #0D1B2A;
+      --navy-light:  #1A2D42;
+      --navy-mid:    #152235;
+      --teal:        #1DBF8A;
+      --teal-glow:   rgba(29, 191, 138, 0.18);
+      --text-muted:  #8A9BB0;
+      --border:      rgba(29, 191, 138, 0.15);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: var(--navy); color: #E8EFF8; height: 100%; }
+
+    /* Navbar */
+    .navbar-custom { background: rgba(13,27,42,0.97); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0.75rem 0; position: fixed; top: 0; left: 0; right: 0; z-index: 1100; }
+    .navbar-brand-text { font-weight: 700; font-size: 1.2rem; background: linear-gradient(135deg,#1DBF8A,#63E6BE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-pill { background: var(--teal-glow); border: 1px solid var(--border); color: var(--teal) !important; border-radius: 50px; padding: 0.3rem 0.9rem; font-size: 0.82rem; font-weight: 500; transition: all 0.2s; text-decoration: none; }
+    .nav-pill:hover { background: var(--teal); color: #fff !important; transform: translateY(-1px); }
+
+    /* Map wrapper */
+    #map-wrapper {
+      position: fixed;
+      top: 57px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    #map { width: 100%; height: 100%; }
+
+    /* Stats overlay */
+    .stats-overlay {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      z-index: 1000;
+      background: rgba(13,27,42,0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem 1.2rem;
+      min-width: 200px;
+    }
+    .stats-overlay h6 { font-size: 0.82rem; color: var(--teal); font-weight: 600; margin-bottom: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .stat-row { display: flex; justify-content: space-between; font-size: 0.83rem; margin-bottom: 0.3rem; color: #C8D8E8; }
+    .stat-val { font-weight: 700; }
+
+    /* Legend */
+    .legend-box {
+      position: absolute;
+      bottom: 28px;
+      right: 14px;
+      z-index: 1000;
+      background: rgba(13,27,42,0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0.9rem 1.1rem;
+    }
+    .legend-box h6 { font-size: 0.8rem; color: var(--teal); font-weight: 600; margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: #C8D8E8; margin-bottom: 0.3rem; }
+    .legend-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+    .dot-red    { background: rgba(220,53,69,0.9);  border: 2px solid #FF4D5A; }
+    .dot-orange { background: rgba(255,140,0,0.9);  border: 2px solid #FF8C00; }
+    .dot-green  { background: rgba(29,191,138,0.9); border: 2px solid #1DBF8A; }
+
+    /* Leaflet popup customization */
+    .leaflet-popup-content-wrapper {
+      background: #1A2D42 !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 12px !important;
+      color: #E8EFF8 !important;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5) !important;
+    }
+    .leaflet-popup-tip { background: #1A2D42 !important; }
+    .leaflet-popup-content { margin: 10px 14px !important; font-family: 'Inter', sans-serif; }
+    .popup-zone-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 5px; color: #E8EFF8; }
+    .popup-score { font-size: 0.85rem; color: #C8D8E8; margin-bottom: 4px; }
+    .popup-badge-high { display: inline-block; background: rgba(220,53,69,0.2); border: 1px solid rgba(220,53,69,0.5); color: #FF8F96; border-radius: 6px; padding: 2px 8px; font-size: 0.72rem; font-weight: 700; }
+    .popup-badge-safe { display: inline-block; background: rgba(29,191,138,0.15); border: 1px solid var(--border); color: var(--teal); border-radius: 6px; padding: 2px 8px; font-size: 0.72rem; font-weight: 700; }
+
+    /* Loading overlay */
+    .loading-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 2000; text-align: center; }
+    .spinner-teal { width: 48px; height: 48px; border: 4px solid rgba(29,191,138,0.2); border-top-color: var(--teal); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <!-- Fixed Navbar -->
+  <nav class="navbar navbar-custom">
+    <div class="container-fluid px-3">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <i class="bi bi-shield-shaded" style="color:var(--teal);font-size:1.3rem;"></i>
+        <span class="navbar-brand-text">SafeRoute BD</span>
+      </a>
+      <div class="d-flex gap-2 align-items-center">
+        <span class="nav-pill" style="background:rgba(220,53,69,0.12);border-color:rgba(220,53,69,0.3);color:#FF8F96!important;cursor:default;">
+          <i class="bi bi-circle-fill me-1" style="font-size:0.5rem;vertical-align:middle;"></i>LIVE MAP
+        </span>
+        <a href="safety-scores.html" class="nav-pill"><i class="bi bi-bar-chart-fill me-1"></i>Scores</a>
+        <a href="community-feed.html" class="nav-pill"><i class="bi bi-people-fill me-1"></i>Feed</a>
+        <a href="alerts.html" class="nav-pill"><i class="bi bi-bell-fill me-1"></i>Alerts</a>
+        <a href="user-dashboard.html" class="nav-pill" id="dashLink" style="display:none;"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+        <a href="login.html" class="nav-pill" id="loginLink"><i class="bi bi-person-fill me-1"></i>Login</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Map -->
+  <div id="map-wrapper">
+    <!-- Stats panel -->
+    <div class="stats-overlay" id="statsPanel">
+      <h6><i class="bi bi-activity me-1"></i>Zone Stats</h6>
+      <div class="stat-row"><span>Total Zones</span><span class="stat-val" id="st-total">—</span></div>
+      <div class="stat-row"><span style="color:#FF8F96;">⚠ High Risk</span><span class="stat-val" id="st-high" style="color:#FF8F96;">—</span></div>
+      <div class="stat-row"><span style="color:#FFB347;">! Medium Risk</span><span class="stat-val" id="st-med" style="color:#FFB347;">—</span></div>
+      <div class="stat-row"><span style="color:var(--teal);">✓ Safe</span><span class="stat-val" id="st-safe" style="color:var(--teal);">—</span></div>
+    </div>
+
+    <!-- Map container -->
+    <div id="map">
+      <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner-teal"></div>
+        <div style="color:var(--text-muted);font-size:0.9rem;">Loading safety data…</div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend-box">
+      <h6><i class="bi bi-map me-1"></i>Legend</h6>
+      <div class="legend-item"><div class="legend-dot dot-red"></div>High Risk Zone</div>
+      <div class="legend-item"><div class="legend-dot dot-orange"></div>Score &lt; 60</div>
+      <div class="legend-item"><div class="legend-dot dot-green"></div>Score ≥ 60 (Safe)</div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const API_BASE = 'http://localhost:3000';
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      document.getElementById('dashLink').style.display = 'inline-flex';
+      document.getElementById('loginLink').style.display = 'none';
+    }
+
+    // Initialise Leaflet map centered on Dhaka
+    const map = L.map('map', {
+      center: [23.8103, 90.4125],
+      zoom: 12,
+      zoomControl: false,
+    });
+
+    L.control.zoom({ position: 'topleft' }).addTo(map);
+
+    // Dark-themed tile layer
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 19,
+    }).addTo(map);
+
+    function getCircleOptions(zone) {
+      if (zone.is_high_risk === 1) {
+        return { color: '#FF4D5A', fillColor: 'rgba(220,53,69,0.35)', fillOpacity: 0.7, weight: 2.5, radius: 600 };
+      } else if (zone.safety_score < 60) {
+        return { color: '#FF8C00', fillColor: 'rgba(255,140,0,0.28)', fillOpacity: 0.7, weight: 2, radius: 500 };
+      } else {
+        return { color: '#1DBF8A', fillColor: 'rgba(29,191,138,0.22)', fillOpacity: 0.7, weight: 2, radius: 450 };
+      }
+    }
+
+    function buildPopup(zone) {
+      const badgeHtml = zone.is_high_risk === 1
+        ? '<span class="popup-badge-high">⚠ HIGH RISK</span>'
+        : '<span class="popup-badge-safe">✓ SAFE</span>';
+
+      const scoreColor = zone.is_high_risk === 1 ? '#FF8F96' : zone.safety_score < 60 ? '#FFB347' : '#1DBF8A';
+
+      return `
+        <div class="popup-zone-name"><i class="bi bi-geo-alt-fill" style="color:#1DBF8A;margin-right:4px;"></i>${zone.area_name}</div>
+        <div class="popup-score">Safety Score: <strong style="color:${scoreColor};">${Number(zone.safety_score).toFixed(1)}</strong> / 100</div>
+        ${badgeHtml}
+      `;
+    }
+
+    async function loadMap() {
+      try {
+        const res = await fetch(`${API_BASE}/api/safety/scores`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+
+        document.getElementById('loadingOverlay').style.display = 'none';
+
+        let highCount = 0, medCount = 0, safeCount = 0;
+
+        data.zones.forEach(zone => {
+          if (!zone.latitude || !zone.longitude) return;
+
+          const opts = getCircleOptions(zone);
+          const circle = L.circle([zone.latitude, zone.longitude], {
+            ...opts,
+            interactive: true,
+          }).addTo(map);
+
+          circle.bindPopup(buildPopup(zone), { maxWidth: 240 });
+
+          // Pulse animation on high-risk
+          if (zone.is_high_risk === 1) {
+            const pulse = L.circle([zone.latitude, zone.longitude], {
+              color: '#FF4D5A', fillColor: 'rgba(220,53,69,0.1)',
+              fillOpacity: 0.4, weight: 1, radius: 800, interactive: false,
+            }).addTo(map);
+          }
+
+          if (zone.is_high_risk === 1) highCount++;
+          else if (zone.safety_score < 60) medCount++;
+          else safeCount++;
+        });
+
+        document.getElementById('st-total').textContent = data.zones.length;
+        document.getElementById('st-high').textContent  = highCount;
+        document.getElementById('st-med').textContent   = medCount;
+        document.getElementById('st-safe').textContent  = safeCount;
+
+        // Auto-fit bounds if zones have coordinates
+        const coords = data.zones.filter(z => z.latitude && z.longitude).map(z => [z.latitude, z.longitude]);
+        if (coords.length > 1) {
+          map.fitBounds(coords, { padding: [40, 40] });
+        }
+      } catch (err) {
+        document.getElementById('loadingOverlay').innerHTML = `
+          <div style="color:#FF8F96;font-size:0.9rem;padding:2rem;background:rgba(13,27,42,0.9);border-radius:14px;border:1px solid rgba(220,53,69,0.3);">
+            <i class="bi bi-wifi-off" style="font-size:2rem;display:block;margin-bottom:0.75rem;"></i>
+            Could not load map data<br><small style="color:var(--text-muted);">${err.message}</small><br>
+            <button onclick="location.reload()" style="margin-top:0.75rem;background:var(--teal);border:none;color:#fff;border-radius:8px;padding:0.4rem 1rem;cursor:pointer;">Retry</button>
+          </div>`;
+      }
+    }
+
+    loadMap();
+  </script>
+</body>
+</html>
