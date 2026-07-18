@@ -101,6 +101,77 @@ Open `frontend/index.html` in your browser, or use [Live Server](https://marketp
 
 ---
 
+## Database Schema (ER Diagram)
+
+```mermaid
+erDiagram
+    USERS ||--o{ INCIDENT_REPORTS : "creates"
+    USERS ||--o{ EMERGENCY_CONTACTS : "has"
+    LOCATION_ZONES ||--o{ INCIDENT_REPORTS : "has"
+    LOCATION_ZONES ||--o{ SAFETY_ALERTS : "generates"
+    INCIDENT_REPORTS ||--o| SAFETY_ALERTS : "triggers"
+    LOCATION_ZONES ||--o{ ROUTE_RECOMMENDATIONS : "is start of"
+    LOCATION_ZONES ||--o{ ROUTE_RECOMMENDATIONS : "is end of"
+    
+    USERS {
+        NUMBER user_id PK
+        VARCHAR2 full_name
+        VARCHAR2 email UK
+        VARCHAR2 phone
+        VARCHAR2 password_hash
+        VARCHAR2 role
+        TIMESTAMP created_at
+    }
+
+    LOCATION_ZONES {
+        NUMBER zone_id PK
+        VARCHAR2 area_name
+        FLOAT latitude
+        FLOAT longitude
+        FLOAT safety_score
+        NUMBER is_high_risk
+    }
+
+    INCIDENT_REPORTS {
+        NUMBER report_id PK
+        NUMBER user_id FK
+        NUMBER zone_id FK
+        VARCHAR2 category
+        VARCHAR2 description
+        NUMBER is_anon
+        NUMBER upvotes
+        VARCHAR2 status
+        TIMESTAMP created_at
+    }
+
+    EMERGENCY_CONTACTS {
+        NUMBER contact_id PK
+        NUMBER user_id FK
+        VARCHAR2 name
+        VARCHAR2 phone
+        VARCHAR2 relation
+    }
+
+    SAFETY_ALERTS {
+        NUMBER alert_id PK
+        NUMBER zone_id FK
+        NUMBER report_id FK "nullable"
+        VARCHAR2 message
+        VARCHAR2 severity
+        TIMESTAMP broadcast
+    }
+
+    ROUTE_RECOMMENDATIONS {
+        NUMBER route_id PK
+        NUMBER start_zone FK
+        NUMBER end_zone FK
+        FLOAT safety_rate
+        DATE last_calc
+    }
+```
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
