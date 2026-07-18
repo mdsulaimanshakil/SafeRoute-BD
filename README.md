@@ -183,16 +183,3 @@ erDiagram
 | Passwords | bcryptjs (salt rounds: 12) |
 
 ---
-
-## Design
-
-- **Primary**: `#0D1B2A` deep navy
-- **Accent**: `#1DBF8A` teal
-- **Font**: Inter (Google Fonts)
-- Glassmorphism card design
-- Mobile responsive
-- Animated gradient background
-
----
-
-*Built for Bangladesh 🇧🇩 — SafeRoute BD*
