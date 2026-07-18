@@ -87,9 +87,64 @@
     .bd-flag {
       font-size: 1.1rem;
     }
+    .top-nav {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover {
+      color: var(--teal);
+    }
+    .api-status {
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.3rem 0.8rem;
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--navy-border);
+      color: var(--text-muted);
+    }
+    .api-status .indicator {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: gray;
+    }
+    .api-status.online .indicator { background: #1DBF8A; box-shadow: 0 0 8px #1DBF8A; }
+    .api-status.offline .indicator { background: #FF4D5A; box-shadow: 0 0 8px #FF4D5A; }
   </style>
 </head>
 <body>
+  <div class="top-nav">
+    <div class="nav-links">
+      <a href="community-feed.html">Community Feed</a>
+      <a href="danger-map.html">Danger Map</a>
+      <a href="safety-scores.html">Safety Scores</a>
+      <a href="search.html">Search</a>
+    </div>
+    <div class="api-status" id="apiStatusBadge">
+      <div class="indicator"></div>
+      <span id="apiStatusText">Checking API...</span>
+    </div>
+  </div>
+
   <div class="bg-animated" aria-hidden="true"></div>
 
   <main class="page-wrapper">
@@ -138,13 +193,35 @@
 
   <script>
     // If already logged in, redirect to dashboard
-    const token = localStorage.getItem('sr_token');
-    const user  = JSON.parse(localStorage.getItem('sr_user') || 'null');
+    const token = localStorage.getItem('token') || localStorage.getItem('sr_token');
+    const user  = JSON.parse(localStorage.getItem('user') || localStorage.getItem('sr_user') || 'null');
     if (token && user) {
       window.location.href = user.role === 'ADMIN'
         ? 'admin-dashboard.html'
         : 'user-dashboard.html';
     }
+
+    // Live API status check
+    async function checkApiStatus() {
+      const badge = document.getElementById('apiStatusBadge');
+      const text = document.getElementById('apiStatusText');
+      try {
+        const res = await fetch('http://localhost:3000/api/health');
+        if (res.ok) {
+          badge.classList.remove('offline');
+          badge.classList.add('online');
+          text.textContent = 'API Online';
+        } else {
+          throw new Error('Not OK');
+        }
+      } catch (err) {
+        badge.classList.remove('online');
+        badge.classList.add('offline');
+        text.textContent = 'API Offline';
+      }
+    }
+    checkApiStatus();
+    setInterval(checkApiStatus, 30000);
   </script>
 </body>
 </html>

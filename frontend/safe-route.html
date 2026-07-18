@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Safe Route — SafeRoute BD</title>
+  <meta name="description" content="Find the safest route between zones on SafeRoute BD." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <style>
+    :root {
+      --navy:        #0D1B2A;
+      --navy-light:  #1A2D42;
+      --navy-mid:    #152235;
+      --teal:        #1DBF8A;
+      --teal-glow:   rgba(29, 191, 138, 0.18);
+      --text-muted:  #8A9BB0;
+      --border:      rgba(29, 191, 138, 0.15);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--navy); color: #E8EFF8; min-height: 100vh; }
+
+    /* Navbar */
+    .navbar-custom { background: rgba(13,27,42,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 1rem 0; }
+    .navbar-brand-text { font-weight: 700; font-size: 1.25rem; background: linear-gradient(135deg,#1DBF8A,#63E6BE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-pill { background: var(--teal-glow); border: 1px solid var(--border); color: var(--teal) !important; border-radius: 50px; padding: 0.35rem 1rem; font-size: 0.85rem; font-weight: 500; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; }
+    .nav-pill:hover { background: var(--teal); color: #fff !important; transform: translateY(-1px); }
+
+    /* Hero / Header */
+    .page-hero { background: linear-gradient(135deg,var(--navy-mid) 0%,rgba(29,191,138,0.08) 100%); border-bottom: 1px solid var(--border); padding: 2.5rem 0; text-align: center; }
+    .page-hero h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .page-hero p { color: var(--text-muted); }
+
+    /* Form Card */
+    .route-form-card { background: var(--navy-light); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-top: -1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative; z-index: 10; }
+    .form-label { font-size: 0.85rem; color: var(--teal); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .form-select { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: #E8EFF8; border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.95rem; }
+    .form-select:focus { background: rgba(29,191,138,0.06); border-color: var(--teal); color: #E8EFF8; box-shadow: 0 0 0 3px rgba(29,191,138,0.12); }
+    .btn-find { background: linear-gradient(135deg,var(--teal),#1aa876); border: none; color: #fff; font-weight: 600; border-radius: 12px; padding: 0.75rem 1.5rem; cursor: pointer; transition: all 0.2s; width: 100%; font-size: 1rem; margin-top: 1.85rem; }
+    .btn-find:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(29,191,138,0.4); }
+
+    /* Result Container */
+    .result-container { display: none; margin-top: 2rem; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Warning Banner */
+    .warning-banner { background: rgba(220,53,69,0.15); border: 1px solid rgba(220,53,69,0.4); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 1rem; color: #FF8F96; }
+    .warning-banner i { font-size: 1.5rem; margin-top: -2px; }
+
+    /* Route Cards */
+    .route-path { display: flex; align-items: stretch; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-bottom: 2rem; }
+    .zone-card { flex: 1; min-width: 250px; background: var(--navy-light); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; position: relative; }
+    .zone-card h4 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .zone-card .badge-safe { background: rgba(29,191,138,0.15); color: var(--teal); border: 1px solid var(--border); border-radius: 8px; padding: 0.25rem 0.6rem; font-size: 0.75rem; font-weight: 700; }
+    .zone-card .badge-high { background: rgba(220,53,69,0.15); color: #FF8F96; border: 1px solid rgba(220,53,69,0.3); border-radius: 8px; padding: 0.25rem 0.6rem; font-size: 0.75rem; font-weight: 700; }
+    .path-arrow { display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--text-muted); opacity: 0.5; padding: 0 1rem; }
+
+    /* Safety Rate */
+    .safety-rate-box { text-align: center; margin-bottom: 1.5rem; }
+    .rate-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 0.5rem 1.2rem; border-radius: 50px; font-weight: 600; font-size: 1.1rem; }
+
+    /* Map */
+    #routeMap { height: 400px; width: 100%; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    
+    /* Utilities */
+    .spinner-border { width: 1.5rem; height: 1.5rem; border-width: 0.2em; display: none; margin-right: 0.5rem; }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-custom sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+        <i class="bi bi-shield-shaded" style="color:var(--teal);font-size:1.4rem;"></i>
+        <span class="navbar-brand-text">SafeRoute BD</span>
+      </a>
+      <div class="d-flex gap-2 align-items-center">
+        <button class="nav-pill border-0" onclick="goBack()"><i class="bi bi-arrow-left me-1"></i>Back</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="page-hero">
+    <div class="container">
+      <h1><i class="bi bi-geo-alt-fill me-2" style="color:var(--teal);"></i>Find Safe <span style="color:var(--teal);">Route</span></h1>
+      <p>Evaluate the safety of your path between zones.</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container pb-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        
+        <!-- Form -->
+        <div class="route-form-card">
+          <form id="routeForm" onsubmit="findRoute(event)">
+            <div class="row g-3">
+              <div class="col-md-5">
+                <label class="form-label">Start Zone</label>
+                <select id="startZone" class="form-select" required>
+                  <option value="">Loading...</option>
+                </select>
+              </div>
+              <div class="col-md-2 d-flex align-items-center justify-content-center pt-md-4">
+                <i class="bi bi-arrow-right-circle" style="font-size:1.5rem; color:var(--text-muted);"></i>
+              </div>
+              <div class="col-md-5">
+                <label class="form-label">End Zone</label>
+                <select id="endZone" class="form-select" required>
+                  <option value="">Loading...</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn-find" id="findBtn">
+              <span class="spinner-border" id="findSpinner" role="status"></span>
+              <i class="bi bi-search me-1" id="findIcon"></i> Find Safe Route
+            </button>
+          </form>
+        </div>
+
+        <!-- Result -->
+        <div id="resultContainer" class="result-container">
+          
+          <div id="warningBanner" class="warning-banner" style="display:none;">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <div>
+              <strong style="display:block;margin-bottom:0.25rem;">High Risk Warning</strong>
+              <span style="font-size:0.9rem;">Part of your route passes through a high-risk zone. Please exercise extreme caution or consider an alternative path.</span>
+            </div>
+          </div>
+
+          <div class="safety-rate-box">
+            <div class="rate-badge">
+              <span style="color:var(--text-muted);font-size:0.9rem;font-weight:400;text-transform:uppercase;">Overall Safety Rate:</span>
+              <span id="overallRate" style="color:var(--teal);">0/100</span>
+            </div>
+          </div>
+
+          <div class="route-path">
+            <!-- Start Zone -->
+            <div class="zone-card">
+              <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:0.5rem;"><i class="bi bi-geo me-1"></i>Start</div>
+              <h4 id="szName">—</h4>
+              <div class="d-flex align-items-center justify-content-between mt-3">
+                <div style="font-size:0.85rem;color:#C8D8E8;">Score: <strong id="szScore">0</strong></div>
+                <div id="szBadge"></div>
+              </div>
+            </div>
+            
+            <div class="path-arrow d-none d-md-flex"><i class="bi bi-arrow-right"></i></div>
+            <div class="path-arrow d-md-none"><i class="bi bi-arrow-down"></i></div>
+
+            <!-- End Zone -->
+            <div class="zone-card">
+              <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:0.5rem;"><i class="bi bi-geo-fill me-1"></i>Destination</div>
+              <h4 id="ezName">—</h4>
+              <div class="d-flex align-items-center justify-content-between mt-3">
+                <div style="font-size:0.85rem;color:#C8D8E8;">Score: <strong id="ezScore">0</strong></div>
+                <div id="ezBadge"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="routeMap"></div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+    <div id="liveToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastBody"></div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const API_BASE = 'http://localhost:3000';
+    let map;
+    let markersLayer;
+    let polyline;
+
+    function goBack() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.history.back();
+        return;
+      }
+      try {
+        const user = JSON.parse(atob(token.split('.')[1]));
+        if (user.role === 'ADMIN') window.location.href = 'admin-dashboard.html';
+        else window.location.href = 'user-dashboard.html';
+      } catch (e) {
+        window.history.back();
+      }
+    }
+
+    function showToast(msg, type='success') {
+      const tb = document.getElementById('toastBody');
+      const toastEl = document.getElementById('liveToast');
+      tb.innerHTML = msg;
+      
+      toastEl.className = `toast align-items-center text-white border-0 bg-${type === 'success' ? 'success' : 'danger'}`;
+      
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
+    }
+
+    async function loadZones() {
+      try {
+        const res = await fetch(`${API_BASE}/api/zones`);
+        const data = await res.json();
+        if (data.success) {
+          const sz = document.getElementById('startZone');
+          const ez = document.getElementById('endZone');
+          sz.innerHTML = '<option value="">Select Start Zone</option>';
+          ez.innerHTML = '<option value="">Select End Zone</option>';
+          data.zones.forEach(z => {
+            sz.innerHTML += `<option value="${z.zone_id}">${z.area_name}</option>`;
+            ez.innerHTML += `<option value="${z.zone_id}">${z.area_name}</option>`;
+          });
+        }
+      } catch (err) {
+        showToast('Failed to load zones.', 'error');
+      }
+    }
+
+    function initMap() {
+      if (!map) {
+        map = L.map('routeMap', { zoomControl: false });
+        L.control.zoom({ position: 'topleft' }).addTo(map);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; OpenStreetMap &copy; CARTO'
+        }).addTo(map);
+        markersLayer = L.featureGroup().addTo(map);
+      }
+    }
+
+    function drawRoute(sz, ez) {
+      if (markersLayer) markersLayer.clearLayers();
+      if (polyline) map.removeLayer(polyline);
+
+      if (sz.lat && sz.lng && ez.lat && ez.lng) {
+        const p1 = [sz.lat, sz.lng];
+        const p2 = [ez.lat, ez.lng];
+
+        const szColor = sz.is_high_risk ? '#FF4D5A' : (sz.score < 60 ? '#FFB347' : '#1DBF8A');
+        const ezColor = ez.is_high_risk ? '#FF4D5A' : (ez.score < 60 ? '#FFB347' : '#1DBF8A');
+
+        const m1 = L.circleMarker(p1, { radius: 8, fillColor: szColor, color: '#fff', weight: 2, fillOpacity: 1 }).addTo(markersLayer);
+        m1.bindPopup(`<b>Start:</b> ${sz.name}`);
+
+        const m2 = L.circleMarker(p2, { radius: 8, fillColor: ezColor, color: '#fff', weight: 2, fillOpacity: 1 }).addTo(markersLayer);
+        m2.bindPopup(`<b>End:</b> ${ez.name}`);
+
+        polyline = L.polyline([p1, p2], {
+          color: 'rgba(29, 191, 138, 0.6)',
+          weight: 4,
+          dashArray: '10, 10'
+        }).addTo(map);
+
+        map.fitBounds(markersLayer.getBounds(), { padding: [50, 50] });
+      }
+    }
+
+    async function findRoute(e) {
+      e.preventDefault();
+      const sz = document.getElementById('startZone').value;
+      const ez = document.getElementById('endZone').value;
+
+      if (!sz || !ez) {
+        showToast('Please select both zones.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('findBtn');
+      const spinner = document.getElementById('findSpinner');
+      const icon = document.getElementById('findIcon');
+      
+      btn.disabled = true;
+      spinner.style.display = 'inline-block';
+      icon.style.display = 'none';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/routes/recommend?from=${sz}&to=${ez}`);
+        const data = await res.json();
+        
+        if (!data.success) throw new Error(data.message);
+
+        document.getElementById('resultContainer').style.display = 'block';
+        initMap();
+
+        const r = data.route;
+        
+        if (r.warning) document.getElementById('warningBanner').style.display = 'flex';
+        else document.getElementById('warningBanner').style.display = 'none';
+
+        const rateEl = document.getElementById('overallRate');
+        rateEl.textContent = `${r.safety_rate.toFixed(1)}/100`;
+        if (r.warning) rateEl.style.color = '#FF8F96';
+        else if (r.safety_rate < 60) rateEl.style.color = '#FFB347';
+        else rateEl.style.color = '#1DBF8A';
+
+        document.getElementById('szName').textContent = r.start_zone.name;
+        document.getElementById('szScore').textContent = r.start_zone.score.toFixed(1);
+        document.getElementById('szBadge').innerHTML = r.start_zone.is_high_risk 
+          ? '<span class="badge-high">⚠ HIGH RISK</span>' 
+          : '<span class="badge-safe">✓ SAFE</span>';
+
+        document.getElementById('ezName').textContent = r.end_zone.name;
+        document.getElementById('ezScore').textContent = r.end_zone.score.toFixed(1);
+        document.getElementById('ezBadge').innerHTML = r.end_zone.is_high_risk 
+          ? '<span class="badge-high">⚠ HIGH RISK</span>' 
+          : '<span class="badge-safe">✓ SAFE</span>';
+
+        drawRoute(r.start_zone, r.end_zone);
+
+        // Smooth scroll
+        setTimeout(() => {
+          document.getElementById('resultContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+
+      } catch (err) {
+        showToast(err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        spinner.style.display = 'none';
+        icon.style.display = 'inline-block';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadZones);
+  </script>
+</body>
+</html>

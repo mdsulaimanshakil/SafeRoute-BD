@@ -14,6 +14,8 @@ const alertRoutes      = require('./routes/alerts');
 const safetyRoutes     = require('./routes/safety');
 const searchRoutes     = require('./routes/search');
 const analyticsRoutes  = require('./routes/analytics');
+const routeRecommendRoutes = require('./routes/routeRecommend');
+const adminRoutes = require('./routes/admin');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -61,6 +63,8 @@ app.use('/api/alerts',    alertRoutes);
 app.use('/api/safety',    safetyRoutes);
 app.use('/api/search',    searchRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/routes', routeRecommendRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

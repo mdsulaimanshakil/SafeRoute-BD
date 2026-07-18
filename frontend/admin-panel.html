@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — SafeRoute BD</title>
+  <meta name="description" content="Administration panel for SafeRoute BD." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <style>
+    :root {
+      --navy:        #0D1B2A;
+      --navy-light:  #1A2D42;
+      --navy-mid:    #152235;
+      --teal:        #1DBF8A;
+      --teal-glow:   rgba(29, 191, 138, 0.18);
+      --text-muted:  #8A9BB0;
+      --border:      rgba(29, 191, 138, 0.15);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--navy); color: #E8EFF8; min-height: 100vh; overflow-x: hidden; }
+
+    /* Layout */
+    .wrapper { display: flex; width: 100%; align-items: stretch; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar { min-width: 260px; max-width: 260px; background: var(--navy-mid); border-right: 1px solid var(--border); transition: all 0.3s; display: flex; flex-direction: column; }
+    .sidebar-header { padding: 1.5rem; border-bottom: 1px solid var(--border); }
+    .sidebar-brand { font-weight: 700; font-size: 1.25rem; background: linear-gradient(135deg,#1DBF8A,#63E6BE); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: flex; align-items: center; gap: 0.5rem; text-decoration: none; }
+    .sidebar-menu { padding: 1rem 0; flex-grow: 1; }
+    .menu-item { padding: 0.75rem 1.5rem; color: #C8D8E8; display: flex; align-items: center; gap: 0.75rem; text-decoration: none; transition: all 0.2s; font-size: 0.95rem; }
+    .menu-item:hover, .menu-item.active { background: rgba(29,191,138,0.1); color: var(--teal); border-right: 3px solid var(--teal); }
+    .menu-item i { font-size: 1.1rem; }
+    .sidebar-footer { padding: 1.5rem; border-top: 1px solid var(--border); }
+    .btn-logout { background: rgba(220,53,69,0.1); color: #FF8F96; border: 1px solid rgba(220,53,69,0.3); border-radius: 8px; padding: 0.5rem 1rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s; text-decoration: none; }
+    .btn-logout:hover { background: rgba(220,53,69,0.2); color: #FF8F96; }
+
+    /* Main Content */
+    .main-content { flex-grow: 1; padding: 2rem; overflow-y: auto; height: 100vh; }
+    .page-title { font-size: 1.75rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+    .page-title i { color: var(--teal); }
+
+    /* Card */
+    .content-card { background: var(--navy-light); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+
+    /* Table */
+    .table-custom { width: 100%; margin-bottom: 0; color: #E8EFF8; }
+    .table-custom th { color: var(--text-muted); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; border-bottom: 1px solid var(--border); padding: 1rem 0.5rem; }
+    .table-custom td { padding: 1rem 0.5rem; vertical-align: middle; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
+    .table-custom tr:last-child td { border-bottom: none; }
+    .table-custom tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .role-badge { font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 6px; }
+    .role-ADMIN { background: rgba(220,53,69,0.15); color: #FF8F96; border: 1px solid rgba(220,53,69,0.3); }
+    .role-PUBLIC_USER { background: rgba(29,191,138,0.15); color: var(--teal); border: 1px solid var(--border); }
+
+    .form-select-sm { background: var(--navy-mid); border: 1px solid var(--border); color: #E8EFF8; border-radius: 6px; padding: 0.25rem 1.5rem 0.25rem 0.5rem; font-size: 0.8rem; }
+    .form-select-sm:focus { box-shadow: none; border-color: var(--teal); }
+    
+    .btn-action { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #C8D8E8; border-radius: 6px; padding: 0.25rem 0.5rem; transition: all 0.2s; cursor: pointer; }
+    .btn-action:hover { background: rgba(29,191,138,0.1); color: var(--teal); border-color: var(--teal); }
+    .btn-action.delete:hover { background: rgba(220,53,69,0.1); color: #FF8F96; border-color: rgba(220,53,69,0.4); }
+
+    /* Utilities */
+    .spinner-border { width: 1.5rem; height: 1.5rem; border-width: 0.2em; display: none; }
+    .loading-overlay { display: none; text-align: center; padding: 3rem; }
+    
+    @media (max-width: 768px) {
+      .wrapper { flex-direction: column; }
+      .sidebar { min-width: 100%; max-width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+      .main-content { height: auto; padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-brand">
+          <i class="bi bi-shield-shaded"></i> SafeRoute BD
+        </a>
+      </div>
+      <div class="sidebar-menu">
+        <a href="admin-dashboard.html" class="menu-item"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="admin-panel.html" class="menu-item active"><i class="bi bi-people"></i> Manage Users</a>
+        <a href="analytics.html" class="menu-item"><i class="bi bi-bar-chart"></i> Analytics</a>
+        <a href="safety-scores.html" class="menu-item"><i class="bi bi-shield-check"></i> Safety Scores</a>
+        <a href="search.html" class="menu-item"><i class="bi bi-search"></i> All Incidents</a>
+        <a href="alerts.html" class="menu-item"><i class="bi bi-bell"></i> Broadcast Alerts</a>
+        <a href="safe-route.html" class="menu-item"><i class="bi bi-map"></i> Safe Routes</a>
+      </div>
+      <div class="sidebar-footer">
+        <a href="#" class="btn-logout" onclick="logout(event)"><i class="bi bi-box-arrow-right"></i> Logout</a>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="page-title mb-0"><i class="bi bi-people-fill"></i> Manage Users</h1>
+        <button class="btn btn-sm btn-outline-light" onclick="goBack()"><i class="bi bi-arrow-left"></i> Back</button>
+      </div>
+
+      <div class="content-card">
+        <div class="loading-overlay" id="loadingOverlay">
+          <div class="spinner-border text-success" style="display:inline-block;" role="status"></div>
+          <div class="mt-2 text-muted">Loading users...</div>
+        </div>
+        
+        <div class="table-responsive" id="tableContainer" style="display:none;">
+          <table class="table-custom">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Joined</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+    <div id="liveToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastBody"></div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const API_BASE = 'http://localhost:3000';
+    const token = localStorage.getItem('token');
+    
+    // Auth Check
+    if (!token) {
+      window.location.href = 'login.html';
+    } else {
+      try {
+        const userRole = JSON.parse(atob(token.split('.')[1])).role;
+        if (userRole !== 'ADMIN') window.location.href = 'user-dashboard.html';
+      } catch(e) {
+        window.location.href = 'login.html';
+      }
+    }
+
+    function logout(e) {
+      e.preventDefault();
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = 'login.html';
+    }
+
+    function goBack() {
+      window.history.back();
+    }
+
+    function showToast(msg, type='success') {
+      const tb = document.getElementById('toastBody');
+      const toastEl = document.getElementById('liveToast');
+      tb.innerHTML = msg;
+      toastEl.className = `toast align-items-center text-white border-0 bg-${type === 'success' ? 'success' : 'danger'}`;
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
+    }
+
+    function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    async function loadUsers() {
+      const overlay = document.getElementById('loadingOverlay');
+      const container = document.getElementById('tableContainer');
+      overlay.style.display = 'block';
+      container.style.display = 'none';
+      
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/users`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.status === 401 || res.status === 403) {
+          window.location.href = 'login.html';
+          return;
+        }
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+
+        const tbody = document.getElementById('usersTableBody');
+        tbody.innerHTML = '';
+        
+        data.users.forEach(u => {
+          const joinedDate = new Date(u.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+          const roleBadge = `<span class="role-badge role-${u.role}">${u.role.replace('_',' ')}</span>`;
+          
+          tbody.innerHTML += `
+            <tr id="user-row-${u.user_id}">
+              <td>
+                <div class="fw-semibold">${escHtml(u.full_name)}</div>
+                <div class="text-muted" style="font-size:0.75rem;">ID: #${u.user_id}</div>
+              </td>
+              <td>${escHtml(u.email)}</td>
+              <td>${roleBadge}</td>
+              <td>${joinedDate}</td>
+              <td class="text-end">
+                <div class="d-flex justify-content-end align-items-center gap-2">
+                  <select class="form-select form-select-sm d-inline-block w-auto" onchange="changeRole(${u.user_id}, this.value)">
+                    <option value="PUBLIC_USER" ${u.role === 'PUBLIC_USER' ? 'selected' : ''}>User</option>
+                    <option value="ADMIN" ${u.role === 'ADMIN' ? 'selected' : ''}>Admin</option>
+                  </select>
+                  <button class="btn-action delete" onclick="deleteUser(${u.user_id}, '${escHtml(u.full_name)}')">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+        
+        container.style.display = 'block';
+      } catch(err) {
+        showToast(err.message, 'error');
+      } finally {
+        overlay.style.display = 'none';
+      }
+    }
+
+    async function changeRole(userId, newRole) {
+      if (!confirm(`Are you sure you want to change user #${userId}'s role to ${newRole}?`)) {
+        loadUsers(); // reset select
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/users/${userId}/role`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ role: newRole })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+        
+        showToast('Role updated successfully.', 'success');
+        loadUsers();
+      } catch (err) {
+        showToast(err.message, 'error');
+        loadUsers();
+      }
+    }
+
+    async function deleteUser(userId, name) {
+      if (!confirm(`WARNING: Are you sure you want to completely delete user "${name}" (ID: ${userId})? This action cannot be undone.`)) {
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/users/${userId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+        
+        showToast('User deleted successfully.', 'success');
+        document.getElementById(`user-row-${userId}`).remove();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadUsers);
+  </script>
+</body>
+</html>
